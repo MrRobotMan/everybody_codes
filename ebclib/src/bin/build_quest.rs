@@ -8,7 +8,7 @@ use std::{
     io::{self, BufReader, Read},
     path::PathBuf,
 };
-use toml_edit::{ArrayOfTables, DocumentMut, Item};
+use toml_edit::{value, ArrayOfTables, DocumentMut, Item, Table};
 
 fn main() {
     let Some((year, quest)) = get_args() else {
@@ -47,9 +47,9 @@ fn create_quest(year: i32, quest: u32) -> io::Result<String> {
     
 fn main() {{
     let input = read_lines("ebc{year}/inputs/quest{quest:02}.txt");
-    println!("{{}}", part_one());
-    println!("{{}}", part_two());
-    println!("{{}}", part_three());
+    println!("{{:?}}", part_one());
+    println!("{{:?}}", part_two());
+    println!("{{:?}}", part_three());
     }}
 
 fn part_one() {{
@@ -69,15 +69,20 @@ fn part_three() {{
 }
 
 /// Update the year's cargo file for the new binary.
-fn update_cargo(year: i32, _quest: u32) -> Result<(), Box<dyn Error>> {
+fn update_cargo(year: i32, quest: u32) -> Result<(), Box<dyn Error>> {
     let cargo_file = format!("ebc{year}/Cargo.toml");
     let mut cargo = get_existing_file(&cargo_file)?.parse::<DocumentMut>()?;
-    let mut bin = cargo
+    let mut new_table = Table::new();
+    new_table["name"] = value(format!("ebc{year}q{quest:02}"));
+    let bin = cargo
         .entry("bin")
-        .or_insert(Item::ArrayOfTables(ArrayOfTables::new()));
-    if !bin.iter()
-    println!("{}", bin.clone());
-    // fs::write(cargo_file, cargo.to_string())?;
+        .or_insert(Item::ArrayOfTables(ArrayOfTables::new()))
+        .as_array_of_tables_mut()
+        .unwrap();
+    if !bin.iter().any(|t| *t.to_string() == new_table.to_string()) {
+        bin.push(new_table);
+    };
+    fs::write(cargo_file, cargo.to_string())?;
     Ok(())
 }
 
@@ -105,32 +110,6 @@ fn get_existing_file(cargo_file: &str) -> io::Result<String> {
     let mut buffer = String::new();
     reader.read_to_string(&mut buffer)?;
     Ok(buffer)
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct Cargo {
-    package: Package,
-    dependencies: HashMap<String, Dependency>,
-    bin: Option<Vec<Bin>>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct Package {
-    name: String,
-    version: String,
-    edition: String,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-#[serde(untagged)]
-enum Dependency {
-    Map(HashMap<String, String>),
-    Str(String),
-}
-
-#[derive(Debug, Deserialize, Serialize, PartialEq, Eq)]
-struct Bin {
-    name: String,
 }
 
 /// Gather the commandline arguments.
