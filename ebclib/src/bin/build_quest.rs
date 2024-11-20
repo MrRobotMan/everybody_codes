@@ -8,6 +8,7 @@ use std::{
     io::{self, BufReader, Read},
     path::PathBuf,
 };
+use toml_edit::{ArrayOfTables, DocumentMut, Item};
 
 fn main() {
     let Some((year, quest)) = get_args() else {
@@ -18,11 +19,15 @@ fn main() {
     };
 
     match update_cargo(year, quest) {
-        Err(e) => println!("{e}"),
         Ok(()) => println!("Updated {year} cargo."),
+        Err(e) => println!("{e}"),
     };
     match create_quest(year, quest) {
         Ok(s) => println!("{s}"),
+        Err(e) => println!("{e}"),
+    }
+    match update_bacon(year, quest) {
+        Ok(_) => println!("Bacon updated."),
         Err(e) => println!("{e}"),
     }
 }
@@ -30,7 +35,7 @@ fn main() {
 fn create_quest(year: i32, quest: u32) -> io::Result<String> {
     let bin = PathBuf::from(format!("ebc{year}/src/bin/ebc{year}q{quest:02}.rs"));
     if bin.exists() {
-        return Ok(String::from("{year} quest {day} already exists. Skipping."));
+        return Ok(format!("{year} quest {quest} already exists. Skipping."));
     }
     if let Some(bin_dir) = bin.parent() {
         if !bin_dir.exists() {
@@ -64,27 +69,37 @@ fn part_three() {{
 }
 
 /// Update the year's cargo file for the new binary.
-fn update_cargo(year: i32, quest: u32) -> Result<(), Box<dyn Error>> {
+fn update_cargo(year: i32, _quest: u32) -> Result<(), Box<dyn Error>> {
     let cargo_file = format!("ebc{year}/Cargo.toml");
-    let mut cargo: Cargo = toml::from_str(&get_existing_cargo_text(&cargo_file)?)?;
-    let new_quest = Bin {
-        name: format!("ebc{year}q{quest:02}"),
-    };
-    match cargo.bin.as_mut() {
-        Some(b) => {
-            if !b.contains(&new_quest) {
-                b.push(new_quest);
-            }
-        }
-        None => cargo.bin = Some(vec![new_quest]),
-    }
-    let cargo_str = toml::to_string_pretty(&cargo)?;
-    fs::write(cargo_file, cargo_str)?;
+    let mut cargo = get_existing_file(&cargo_file)?.parse::<DocumentMut>()?;
+    let mut bin = cargo
+        .entry("bin")
+        .or_insert(Item::ArrayOfTables(ArrayOfTables::new()));
+    if !bin.iter()
+    println!("{}", bin.clone());
+    // fs::write(cargo_file, cargo.to_string())?;
     Ok(())
 }
 
-/// Read the existing cargo file.
-fn get_existing_cargo_text(cargo_file: &str) -> io::Result<String> {
+/// Update bacon to call the binary when using run.
+fn update_bacon(year: i32, quest: u32) -> io::Result<()> {
+    let mut bacon = get_existing_file("bacon.toml")?
+        .split('\n')
+        .map(|s| s.to_string())
+        .collect::<Vec<_>>();
+    for line in bacon.iter_mut() {
+        if line.contains("--package") {
+            *line = format!(r#"    "--package", "ebc{year}","#);
+        }
+        if line.contains("--bin") {
+            *line = format!(r#"    "--bin", "ebc{year}q{quest:02}","#);
+        }
+    }
+    fs::write("bacon.toml", bacon.join("\n"))
+}
+
+/// Read the existing file.
+fn get_existing_file(cargo_file: &str) -> io::Result<String> {
     let cargo = File::open(cargo_file)?;
     let mut reader = BufReader::new(cargo);
     let mut buffer = String::new();
@@ -95,7 +110,7 @@ fn get_existing_cargo_text(cargo_file: &str) -> io::Result<String> {
 #[derive(Debug, Deserialize, Serialize)]
 struct Cargo {
     package: Package,
-    dependencies: HashMap<String, String>,
+    dependencies: HashMap<String, Dependency>,
     bin: Option<Vec<Bin>>,
 }
 
@@ -104,6 +119,13 @@ struct Package {
     name: String,
     version: String,
     edition: String,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+#[serde(untagged)]
+enum Dependency {
+    Map(HashMap<String, String>),
+    Str(String),
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq)]
