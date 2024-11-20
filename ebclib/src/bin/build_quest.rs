@@ -1,7 +1,5 @@
 use chrono::{Datelike, FixedOffset, TimeZone, Utc};
-use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashMap,
     env,
     error::Error,
     fs::{self, create_dir, File},
