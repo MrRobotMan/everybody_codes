@@ -45,20 +45,20 @@ fn create_quest(year: i32, quest: u32) -> io::Result<String> {
     
 fn main() {{
     let input = read_lines("ebc{year}/inputs/quest{quest:02}.txt");
-    println!("{{:?}}", part_one());
-    println!("{{:?}}", part_two());
-    println!("{{:?}}", part_three());
+    println!("Part 1: {{}}", part_one());
+    println!("Part 2: {{}}", part_two());
+    println!("Part 3: {{}}", part_three());
     }}
 
-fn part_one() {{
-    todo!()
+fn part_one() -> String {{
+    "Unsolved".into()
 }}
 
-fn part_two() {{
-    todo!()
+fn part_two() -> String {{
+    "Unsolved".into()
 }}
-fn part_three() {{
-    todo!()
+fn part_three() -> String {{
+    "Unsolved".into()
 }}
     "#
     );
