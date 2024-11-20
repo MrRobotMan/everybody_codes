@@ -1,0 +1,11 @@
+[package]
+name = "ebc2024"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ebclib = {path = "../ebclib"}
+
+[[bin]]
+name = "ebc2024q01"
+
