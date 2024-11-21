@@ -5,32 +5,32 @@ fn main() {
     println!("Part 1: {}", part_one(&input1));
     let input2 = read_line_chars("ebc2024/inputs/quest01.2.txt");
     println!("Part 2: {}", part_two(&input2));
-    println!("Part 3: {}", part_three());
+    let input3 = read_line_chars("ebc2024/inputs/quest01.3.txt");
+    println!("Part 3: {}", part_three(&input3));
 }
 
 fn part_one(input: &[char]) -> u32 {
-    input
-        .iter()
-        .filter_map(|c| std::convert::Into::<Creature>::into(*c).value())
-        .sum::<u32>()
+    potion_calculator(input, 1)
 }
 
 fn part_two(input: &[char]) -> u32 {
-    input
-        .chunks(2)
+    potion_calculator(input, 2)
+}
+fn part_three(input: &[char]) -> u32 {
+    potion_calculator(input, 3)
+}
+
+fn potion_calculator(creatures: &[char], mob_size: usize) -> u32 {
+    creatures
+        .chunks(mob_size)
         .map(|w| {
-            let a: Creature = w[0].into();
-            let b: Creature = w[1].into();
-            match (a.value(), b.value()) {
-                (None, Some(v)) | (Some(v), None) => v,
-                (Some(v1), Some(v2)) => v1 + v2 + 2,
-                (None, None) => 0,
-            }
+            let mob = w
+                .iter()
+                .filter_map(|c| std::convert::Into::<Creature>::into(*c).value())
+                .collect::<Vec<_>>();
+            mob.iter().sum::<u32>() + (mob.len().saturating_sub(1) * mob.len()) as u32
         })
         .sum::<u32>()
-}
-fn part_three() -> String {
-    "Unsolved".into()
 }
 
 enum Creature {
@@ -72,13 +72,19 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        let potions = "ABBAC".chars().collect::<Vec<_>>();
-        assert_eq!(5, part_one(&potions));
+        let creatures = "ABBAC".chars().collect::<Vec<_>>();
+        assert_eq!(5, part_one(&creatures));
     }
 
     #[test]
     fn test_part_two() {
-        let potions = "AxBCDDCAxD".chars().collect::<Vec<_>>();
-        assert_eq!(28, part_two(&potions));
+        let creatures = "AxBCDDCAxD".chars().collect::<Vec<_>>();
+        assert_eq!(28, part_two(&creatures));
+    }
+
+    #[test]
+    fn test_part_three() {
+        let creatures = "xBxAAABCDxCC".chars().collect::<Vec<_>>();
+        assert_eq!(30, part_three(&creatures));
     }
 }
