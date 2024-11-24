@@ -60,6 +60,18 @@ fn part_two() -> String {{
 fn part_three() -> String {{
     "Unsolved".into()
 }}
+
+#[cfg(test)]
+mod tests {{
+    use super::*;
+
+    #[test]
+    fn test_one() {{
+        let expected = 1;
+        let actual = 0;
+        assert_eq!(expected, actual);
+    }}
+}}
     "#
     );
     fs::write(bin, template)?;
