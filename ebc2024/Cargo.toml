@@ -12,3 +12,6 @@ name = "ebc2024q01"
 [[bin]]
 name = "ebc2024q02"
 
+[[bin]]
+name = "ebc2024q03"
+
