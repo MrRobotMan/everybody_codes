@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 ebclib = {path = "../ebclib"}
-regex = "1.11.1"
 
 [[bin]]
 name = "ebc2024q01"
