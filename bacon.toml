@@ -78,7 +78,7 @@ command = [
     "cargo", "run",
     "--color", "always",
     "--package", "ebc2024",
-    "--bin", "ebc2024q03",
+    "--bin", "ebc2024q04",
     # put launch parameters for your program behind a `--` separator
     "--",
 ]
