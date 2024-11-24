@@ -44,9 +44,13 @@ fn create_quest(year: i32, quest: u32) -> io::Result<String> {
         r#"use ebclib::read_lines;
     
 fn main() {{
-    let input = read_lines("ebc{year}/inputs/quest{quest:02}.txt");
+    let input = read_lines("ebc{year}/inputs/quest{quest:02}.1.txt");
     println!("Part 1: {{}}", part_one());
+
+    let input = read_lines("ebc{year}/inputs/quest{quest:02}.2.txt");
     println!("Part 2: {{}}", part_two());
+
+    let input = read_lines("ebc{year}/inputs/quest{quest:02}.3.txt");
     println!("Part 3: {{}}", part_three());
     }}
 
