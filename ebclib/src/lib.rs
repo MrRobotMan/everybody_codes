@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::Display, fs::read_to_string, path::Path};
+use std::{fmt::Display, fs::read_to_string, path::Path};
 
 /// Gather a string of text or file name to a string.
 pub fn lines<T: AsRef<Path> + Display>(path: T) -> String {
@@ -23,17 +23,11 @@ pub fn read_line_chars<T: AsRef<Path> + Display>(file: T) -> Vec<char> {
 }
 
 /// Read hte input to a grid
-pub fn read_grid<T: AsRef<Path> + Display>(file: T) -> HashMap<(i64, i64), char> {
+pub fn read_grid<T: AsRef<Path> + Display>(file: T) -> Vec<Vec<char>> {
     lines(file)
         .trim()
         .lines()
-        .enumerate()
-        .flat_map(|(row, line)| {
-            line.chars()
-                .enumerate()
-                .map(|(col, ch)| ((row as i64, col as i64), ch))
-                .collect::<Vec<_>>()
-        })
+        .map(|line| line.chars().collect::<Vec<_>>())
         .collect()
 }
 
@@ -45,26 +39,11 @@ mod tests {
     fn test_grid() {
         let input = "..##..\n##..##\n..##..";
         let actual = read_grid(input);
-        let expected = HashMap::from([
-            ((0, 0), '.'),
-            ((0, 1), '.'),
-            ((0, 2), '#'),
-            ((0, 3), '#'),
-            ((0, 4), '.'),
-            ((0, 5), '.'),
-            ((1, 0), '#'),
-            ((1, 1), '#'),
-            ((1, 2), '.'),
-            ((1, 3), '.'),
-            ((1, 4), '#'),
-            ((1, 5), '#'),
-            ((2, 0), '.'),
-            ((2, 1), '.'),
-            ((2, 2), '#'),
-            ((2, 3), '#'),
-            ((2, 4), '.'),
-            ((2, 5), '.'),
-        ]);
+        let expected = vec![
+            vec!['.', '.', '#', '#', '.', '.'],
+            vec!['#', '#', '.', '.', '#', '#'],
+            vec!['.', '.', '#', '#', '.', '.'],
+        ];
         assert_eq!(actual, expected);
     }
 }
