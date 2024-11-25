@@ -9,8 +9,8 @@ fn main() {
     let input = parse(&read_lines("ebc2024/inputs/quest06.2.txt"));
     println!("Part 2: {}", part_two(&input));
 
-    let _input = read_lines("ebc2024/inputs/quest06.3.txt");
-    println!("Part 3: {}", part_three());
+    let input = parse(&read_lines("ebc2024/inputs/quest06.3.txt"));
+    println!("Part 3: {}", part_three(&input));
 }
 
 fn part_one(mapping: &HashMap<String, String>) -> String {
@@ -24,8 +24,11 @@ fn part_two(mapping: &HashMap<String, String>) -> String {
         .collect::<String>()
 }
 
-fn part_three() -> String {
-    "Unsolved".into()
+fn part_three(mapping: &HashMap<String, String>) -> String {
+    get_paths(mapping)
+        .iter()
+        .map(|s| s.chars().next().unwrap())
+        .collect::<String>()
 }
 
 fn get_paths(mapping: &HashMap<String, String>) -> Vec<String> {
@@ -58,7 +61,11 @@ fn get_paths(mapping: &HashMap<String, String>) -> Vec<String> {
                         .or_insert(vec![path]);
                 }
             }
-            parent => queue.push((parent, new_steps)),
+            parent => {
+                if !steps.contains(&parent) {
+                    queue.push((parent, new_steps))
+                }
+            }
         }
     }
     assert_eq!(paths.values().filter(|p| p.len() == 1).count(), 1);
