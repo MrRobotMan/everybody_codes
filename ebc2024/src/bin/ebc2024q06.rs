@@ -13,27 +13,49 @@ fn main() {
     println!("Part 3: {}", part_three());
 }
 
-fn part_one(mapping: &HashMap<String, Vec<String>>) -> String {
-    let mut paths: HashMap<usize, Vec<String>> = HashMap::new();
-    let mut queue = vec![("RR", vec![])];
+fn part_one(mapping: &HashMap<String, String>) -> String {
+    get_paths(mapping).join("")
+}
+
+fn part_two() -> String {
+    "Unsolved".into()
+}
+
+fn part_three() -> String {
+    "Unsolved".into()
+}
+
+fn get_paths(mapping: &HashMap<String, String>) -> Vec<String> {
+    let mut paths: HashMap<usize, Vec<Vec<String>>> = HashMap::new();
+    let mut queue = mapping
+        .iter()
+        .filter_map(|(k, v)| {
+            if k.starts_with("@") {
+                Some((v.as_str(), vec!["@"]))
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
     while let Some((node, steps)) = queue.pop() {
-        if let Some(nodes) = mapping.get(node) {
-            for next_node in nodes {
-                let mut new_steps = steps.clone();
-                new_steps.push(node);
-                match next_node.as_ref() {
-                    "@" => {
-                        new_steps.push("@");
-                        paths
-                            .entry(steps.len() + 1)
-                            .and_modify(|s| s.push(new_steps.iter().copied().collect::<String>()))
-                            .or_insert(vec![new_steps.iter().copied().collect::<String>()]);
-                    }
-                    _ => {
-                        queue.push((next_node, new_steps));
-                    }
+        let mut new_steps = steps.clone();
+        new_steps.push(node);
+        match mapping[node].as_str() {
+            "RR" => {
+                if steps[0] == "@" {
+                    new_steps.push("RR");
+                    let path = new_steps
+                        .iter()
+                        .rev()
+                        .map(|s| s.to_string())
+                        .collect::<Vec<_>>();
+                    paths
+                        .entry(new_steps.len())
+                        .and_modify(|s| s.push(path.clone()))
+                        .or_insert(vec![path]);
                 }
             }
+            parent => queue.push((parent, new_steps)),
         }
     }
     assert_eq!(paths.values().filter(|p| p.len() == 1).count(), 1);
@@ -50,20 +72,25 @@ fn part_one(mapping: &HashMap<String, Vec<String>>) -> String {
         .unwrap()
 }
 
-fn part_two() -> String {
-    "Unsolved".into()
-}
-
-fn part_three() -> String {
-    "Unsolved".into()
-}
-
-fn parse<S: AsRef<str>>(mapping: &[S]) -> HashMap<String, Vec<String>> {
+fn parse<S: AsRef<str>>(mapping: &[S]) -> HashMap<String, String> {
+    let mut ends = 0;
     mapping
         .iter()
-        .map(|inst| {
+        .flat_map(|inst| {
             let (k, v) = inst.as_ref().split_once(':').unwrap();
-            (k.to_string(), v.split(',').map(|s| s.to_string()).collect())
+            v.split(',')
+                .map(|s| {
+                    (
+                        if s == "@" {
+                            ends += 1;
+                            format!("{s}{ends}")
+                        } else {
+                            s.to_string()
+                        },
+                        k.to_string(),
+                    )
+                })
+                .collect::<Vec<_>>()
         })
         .collect()
 }
@@ -77,6 +104,6 @@ mod tests {
         let mapping = parse(&[
             "RR:A,B,C", "A:D,E", "B:F,@", "C:G,H", "D:@", "E:@", "F:@", "G:@", "H:@",
         ]);
-        assert_eq!("RRB@", part_one(&mapping));
+        assert_eq!(vec!["RR", "B", "@"], get_paths(&mapping));
     }
 }
