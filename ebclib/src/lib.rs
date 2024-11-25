@@ -31,6 +31,21 @@ pub fn read_grid<T: AsRef<Path> + Display>(file: T) -> Vec<Vec<char>> {
         .collect()
 }
 
+/// Array of 4 ordinal direction offsets.
+pub const DIRS: [(i64, i64); 4] = [(-1, 0), (0, 1), (1, 0), (0, -1)];
+
+/// Array of 8 directional offsets
+pub const ALL_DIRS: [(i64, i64); 8] = [
+    (-1, 0),
+    (-1, 1),
+    (0, 1),
+    (1, 1),
+    (1, 0),
+    (1, -1),
+    (0, -1),
+    (-1, -1),
+];
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use ebclib::read_grid;
+use ebclib::{read_grid, ALL_DIRS, DIRS};
 
 fn main() {
     let input = read_grid("ebc2024/inputs/quest03.1.txt");
@@ -12,18 +12,6 @@ fn main() {
     let input = read_grid("ebc2024/inputs/quest03.3.txt");
     println!("Part 3: {}", part_three(input));
 }
-
-const DIRS: [(i64, i64); 4] = [(-1, 0), (0, 1), (1, 0), (0, -1)];
-const ALL_DIRS: [(i64, i64); 8] = [
-    (-1, 0),
-    (-1, 1),
-    (0, 1),
-    (1, 1),
-    (1, 0),
-    (1, -1),
-    (0, -1),
-    (-1, -1),
-];
 
 fn part_one(grid: Vec<Vec<char>>) -> usize {
     let ((rows, cols), mut map) = get_grid(grid);
