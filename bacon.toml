@@ -51,6 +51,15 @@ need_stdout = false
 [jobs.test]
 command = [
     "cargo", "test", "--color", "always",
+    "--package", "ebc2024",
+    "--bin", "ebc2024q05",
+    "--", "--color", "always", # see https://github.com/Canop/bacon/issues/124
+]
+need_stdout = true
+
+[jobs.test-all]
+command = [
+    "cargo", "test", "--color", "always",
     "--", "--color", "always", # see https://github.com/Canop/bacon/issues/124
 ]
 need_stdout = true
@@ -78,7 +87,7 @@ command = [
     "cargo", "run",
     "--color", "always",
     "--package", "ebc2024",
-    "--bin", "ebc2024q04",
+    "--bin", "ebc2024q05",
     # put launch parameters for your program behind a `--` separator
     "--",
 ]
@@ -102,3 +111,4 @@ allow_warnings = true
 [keybindings]
 # alt-m = "job:my-job"
 c = "job:clippy-all" # comment this to have 'c' run clippy on only the default target
+alt-t = "job:test-all"
