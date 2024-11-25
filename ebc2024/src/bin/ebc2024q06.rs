@@ -3,11 +3,11 @@ use std::collections::HashMap;
 use ebclib::read_lines;
 
 fn main() {
-    let input = read_lines("ebc2024/inputs/quest06.1.txt");
-    println!("Part 1: {}", part_one(&parse(&input)));
+    let input = parse(&read_lines("ebc2024/inputs/quest06.1.txt"));
+    println!("Part 1: {}", part_one(&input));
 
-    let _input = read_lines("ebc2024/inputs/quest06.2.txt");
-    println!("Part 2: {}", part_two());
+    let input = parse(&read_lines("ebc2024/inputs/quest06.2.txt"));
+    println!("Part 2: {}", part_two(&input));
 
     let _input = read_lines("ebc2024/inputs/quest06.3.txt");
     println!("Part 3: {}", part_three());
@@ -17,8 +17,11 @@ fn part_one(mapping: &HashMap<String, String>) -> String {
     get_paths(mapping).join("")
 }
 
-fn part_two() -> String {
-    "Unsolved".into()
+fn part_two(mapping: &HashMap<String, String>) -> String {
+    get_paths(mapping)
+        .iter()
+        .map(|s| s.chars().next().unwrap())
+        .collect::<String>()
 }
 
 fn part_three() -> String {
