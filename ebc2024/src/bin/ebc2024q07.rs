@@ -1,4 +1,7 @@
-use ebclib::read_lines;
+use num::Integer;
+use std::collections::{HashMap, HashSet};
+
+use ebclib::{math::permutations_with_duplicates, read_lines, DIRS};
 
 fn main() {
     let plans = read_lines("ebc2024/inputs/quest07.1.txt")
@@ -30,8 +33,26 @@ fn main() {
     );
     println!("Part 2: {}", part_two(plans, track));
 
-    let _input = read_lines("ebc2024/inputs/quest07.3.txt");
-    println!("Part 3: {}", part_three());
+    let plans = read_lines("ebc2024/inputs/quest07.3.txt")
+        .iter()
+        .map(|l| {
+            let (name, actions) = l.split_once(':').unwrap();
+            Device::new(name, actions)
+        })
+        .collect::<Vec<Device>>();
+    let track = parse_track(
+        "S+= +=-== +=++=     =+=+=--=    =-= ++=     +=-  =+=++=-+==+ =++=-=-=--
+- + +   + =   =     =      =   == = - -     - =  =         =-=        -
+= + + +-- =-= ==-==-= --++ +  == == = +     - =  =    ==++=    =++=-=++
++ + + =     +         =  + + == == ++ =     = =  ==   =   = =++=
+= = + + +== +==     =++ == =+=  =  +  +==-=++ =   =++ --= + =
++ ==- = + =   = =+= =   =       ++--          +     =   = = =--= ==++==
+=     ==- ==+-- = = = ++= +=--      ==+ ==--= +--+=-= ==- ==   =+=    =
+-               = = = =   +  +  ==+ = = +   =        ++    =          -
+-               = + + =   +  -  = + = = +   =        +     =          -
+--==++++==+=+++-= =-= =-+-=  =+-= =-= =--   +=++=+++==     -=+=++==+++-",
+    );
+    println!("Part 3: {}", part_three(plans, track));
 }
 
 fn part_one(mut action_plans: Vec<Device>) -> String {
@@ -58,8 +79,52 @@ fn part_two(mut action_plans: Vec<Device>, track: Vec<char>) -> String {
         .collect::<String>()
 }
 
-fn part_three() -> String {
-    "Unsolved".into()
+fn part_three(mut action_plans: Vec<Device>, track: Vec<char>) -> usize {
+    // Only need to calculate enough laps that the LCM of the laps and track length is
+    // greater than the total number of laps.
+    let laps_to_calculate = factors(2024)
+        .iter()
+        .filter_map(|f| {
+            if Integer::lcm(f, &track.len()) > 2024 {
+                Some(*f)
+            } else {
+                None
+            }
+        })
+        .min()
+        .unwrap_or(2024);
+    (0..laps_to_calculate).for_each(|_| action_plans[0].lap(&track));
+    let competetor = action_plans[0].score;
+    let plans = permutations_with_duplicates(&action_plans[0].actions);
+    assert_eq!(plans.len(), 9240); // 11! / (5!*3!*3!)
+    plans
+        .iter()
+        .map(|p| {
+            let mut d = Device {
+                power: 10,
+                actions: p.clone(),
+                ..Default::default()
+            };
+            (0..laps_to_calculate).for_each(|_| d.lap(&track));
+            if d.score > competetor {
+                1
+            } else {
+                0
+            }
+        })
+        .sum()
+}
+
+fn factors(mut number: usize) -> HashSet<usize> {
+    let primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]; // Primes below sqsrt(2024)
+    let mut found = HashSet::new();
+    for prime in primes {
+        while number % prime == 0 {
+            found.insert(prime);
+            number /= prime;
+        }
+    }
+    found
 }
 
 #[derive(Debug, Default)]
@@ -122,23 +187,44 @@ fn parse_track<S: AsRef<str>>(track: S) -> Vec<char> {
     let lines = track
         .as_ref()
         .lines()
-        .map(|l| l.chars().collect::<Vec<_>>())
-        .collect::<Vec<_>>();
-    let bottom = lines.len() - 1;
-    let mut last_leg = vec![];
+        .enumerate()
+        .flat_map(|(r, l)| {
+            l.chars()
+                .enumerate()
+                .filter_map(|(c, ch)| {
+                    if ch != ' ' {
+                        Some(((r as i64, c as i64), ch))
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect::<HashMap<(i64, i64), char>>();
+    let mut row = 0;
+    let mut col = 1;
+    let mut offset = 1;
     let mut track = vec![];
-    for (idx, line) in lines.into_iter().enumerate() {
-        if idx == 0 {
-            track.append(&mut line[1..].to_vec());
-        } else if idx == bottom {
-            track.append(&mut line.iter().rev().copied().collect::<Vec<_>>());
-        } else {
-            last_leg.push(line[0]);
-            track.push(line[line.len() - 1]);
+    loop {
+        match lines.get(&(row, col)) {
+            Some(ch) => {
+                track.push(*ch);
+                if *ch == 'S' {
+                    break;
+                }
+            }
+            None => {
+                row -= DIRS[offset].0;
+                col -= DIRS[offset].1;
+                offset = (offset + 1) % 4;
+                if !lines.contains_key(&(row + DIRS[offset].0, col + DIRS[offset].1)) {
+                    offset = (offset + 2) % 4;
+                }
+            }
         }
+        row += DIRS[offset].0;
+        col += DIRS[offset].1;
     }
-    track.append(&mut last_leg);
-    track.push('S');
     track
 }
 
@@ -179,6 +265,11 @@ mod tests {
             vec![129, 148, 154, 158],
             devices.iter().map(|d| d.score).collect::<Vec<_>>()
         );
+        devices.iter_mut().for_each(|d| {
+            d.score = 0;
+            d.step = 0;
+            d.power = 0;
+        });
         assert_eq!("DCBA", part_two(devices, track));
     }
 
@@ -188,5 +279,51 @@ mod tests {
             parse_track("S+===\n-   +\n=+=-+"),
             vec!['+', '=', '=', '=', '+', '+', '-', '=', '+', '=', '-', 'S']
         );
+    }
+
+    #[test]
+    fn test_make_bent_track() {
+        assert_eq!(
+            parse_track(
+                "S+= ===
+- +++ +
+-     +
+=+=-+=="
+            ),
+            vec![
+                '+', '=', '+', '+', '+', '=', '=', '=', '+', '+', '=', '=', '+', '-', '=', '+',
+                '=', '-', '-', 'S'
+            ]
+        );
+    }
+
+    #[test]
+    fn test_make_big_track() {
+        let track = parse_track(
+            "S+= +=-== +=++=     =+=+=--=    =-= ++=     +=-  =+=++=-+==+ =++=-=-=--
+- + +   + =   =     =      =   == = - -     - =  =         =-=        -
+= + + +-- =-= ==-==-= --++ +  == == = +     - =  =    ==++=    =++=-=++
++ + + =     +         =  + + == == ++ =     = =  ==   =   = =++=
+= = + + +== +==     =++ == =+=  =  +  +==-=++ =   =++ --= + =
++ ==- = + =   = =+= =   =       ++--          +     =   = = =--= ==++==
+=     ==- ==+-- = = = ++= +=--      ==+ ==--= +--+=-= ==- ==   =+=    =
+-               = = = =   +  +  ==+ = = +   =        ++    =          -
+-               = + + =   +  -  = + = = +   =        +     =          -
+--==++++==+=+++-= =-= =-+-=  =+-= =-= =--   +=++=+++==     -=+=++==+++-",
+        );
+        let expected =
+            "+=+++===-+++++=-==+--+=+===-++=====+--===++=-==+=++====-==-===+=+=--==++=+========-==\
+=====++--+++=-++=-+=+==-=++=--+=-====++--+=-==++======+=++=-+==+=-==++=-=-=---++=-=++\
+==++===--==+===++===---+++==++=+=-=====+==++===--==-==+++==+++=++=+===--==++--===+===\
+==-=++====-+=-+--=+++=-+-===++====+++--=++====+=-=+===+=====-+++=+==++++==----=+=+=-S"
+                .chars()
+                .collect::<Vec<_>>();
+        assert_eq!(expected, track);
+    }
+
+    #[test]
+    fn test_factors() {
+        assert_eq!(HashSet::from([3, 5]), factors(15));
+        assert_eq!(HashSet::from([2]), factors(16));
     }
 }

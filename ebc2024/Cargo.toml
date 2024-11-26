@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 ebclib = {path = "../ebclib"}
+num = "0.4.3"
 
 [[bin]]
 name = "ebc2024q01"
