@@ -1,4 +1,5 @@
 use std::{fmt::Display, fs::read_to_string, path::Path};
+pub mod math;
 
 /// Gather a string of text or file name to a string.
 pub fn lines<T: AsRef<Path> + Display>(path: T) -> String {
@@ -31,7 +32,7 @@ pub fn read_grid<T: AsRef<Path> + Display>(file: T) -> Vec<Vec<char>> {
         .collect()
 }
 
-/// Array of 4 ordinal direction offsets.
+/// Array of 4 ordinal direction offsets. Up, Right, Down, Left
 pub const DIRS: [(i64, i64); 4] = [(-1, 0), (0, 1), (1, 0), (0, -1)];
 
 /// Array of 8 directional offsets
