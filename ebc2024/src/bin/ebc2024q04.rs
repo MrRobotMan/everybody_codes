@@ -1,4 +1,4 @@
-use ebclib::read_lines;
+use ebclib::{read_lines, Median};
 
 fn main() {
     let input = read_lines("ebc2024/inputs/quest04.1.txt")
@@ -27,8 +27,11 @@ fn part_one(nails: &[i64]) -> i64 {
 }
 
 fn part_three(nails: &[i64]) -> i64 {
-    let mid = nails[nails.len() / 2];
-    nails.iter().map(|nail| (nail - mid).abs()).sum()
+    let mid = nails.mid();
+    mid.iter()
+        .map(|m| nails.iter().map(|nail| nail.abs_diff(*m) as i64).sum())
+        .min()
+        .unwrap()
 }
 
 #[cfg(test)]
