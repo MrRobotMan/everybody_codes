@@ -1,4 +1,10 @@
-use std::{fmt::Display, fs::read_to_string, ops::Deref, path::Path};
+use std::{
+    fmt::{Debug, Display},
+    fs::read_to_string,
+    ops::Deref,
+    path::Path,
+    str::FromStr,
+};
 pub mod math;
 
 /// Gather a string of text or file name to a string.
@@ -15,6 +21,18 @@ pub fn read_lines<T: AsRef<Path> + Display>(file: T) -> Vec<String> {
         .lines()
         .filter(|s| !s.is_empty())
         .map(|s| s.to_string())
+        .collect()
+}
+
+/// Read the input to a vec of T.
+pub fn read_numbers<T: AsRef<Path> + Display, U: FromStr>(file: T) -> Vec<U>
+where
+    <U as FromStr>::Err: Debug,
+{
+    lines(file)
+        .lines()
+        .filter(|s| !s.is_empty())
+        .map(|s| s.parse::<U>().expect("Unknown item {s:?}"))
         .collect()
 }
 
