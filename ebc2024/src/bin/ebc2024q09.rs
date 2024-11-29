@@ -1,4 +1,4 @@
-use ebclib::{read_lines, read_numbers};
+use ebclib::read_numbers;
 
 fn main() {
     let input = read_numbers("ebc2024/inputs/quest09.1.txt");
@@ -7,60 +7,50 @@ fn main() {
     let input = read_numbers("ebc2024/inputs/quest09.2.txt");
     println!("Part 2: {}", part_two(&input));
 
-    let _input = read_lines("ebc2024/inputs/quest09.3.txt");
-    println!("Part 3: {}", part_three());
+    let input = read_numbers("ebc2024/inputs/quest09.3.txt");
+    println!("Part 3: {}", part_three(&input));
 }
 
-fn part_one(sparkballs: &[u64]) -> u64 {
+fn part_one(sparkballs: &[usize]) -> usize {
     let stamps = [1, 3, 5, 10];
-    get_beetle_count(sparkballs, &stamps).iter().sum()
-    // sparkballs
-    //     .iter()
-    //     .map(|s| get_beetle_count(*s, &stamps))
-    //     .sum()
+    let values = get_beetle_count(sparkballs, &stamps);
+    sparkballs.iter().map(|s| values[*s]).sum()
 }
 
-fn part_two(sparkballs: &[u64]) -> u64 {
+fn part_two(sparkballs: &[usize]) -> usize {
     let stamps = [1, 3, 5, 10, 15, 16, 20, 24, 25, 30];
-    get_beetle_count(sparkballs, &stamps).iter().sum()
-    // sparkballs
-    //     .iter()
-    //     .map(|s| get_beetle_count(*s, &stamps))
-    //     .sum()
+    let values = get_beetle_count(sparkballs, &stamps);
+    sparkballs.iter().map(|s| values[*s]).sum()
 }
 
-fn part_three() -> String {
-    "Unsolved".into()
-}
-
-fn get_beetle_count(sparkballs: &[u64], stamps: &[u64]) -> Vec<u64> {
-    let mut counts = vec![vec![0; *sparkballs.iter().max().unwrap() as usize + 1]; stamps.len()];
-    for sparkball in sparkballs {
-        if counts[0][*sparkball as usize] > 0 {
-            continue;
-        }
-        stamps
-            .iter()
-            .rev()
-            .enumerate()
-            .rev()
-            .for_each(|(stamp_idx, stamp)| {
-                (1..=*sparkball).for_each(|index| {
-                    counts[stamp_idx][index as usize] = u64::MAX;
-                    let mut keep = u64::MAX;
-                    let mut drop = u64::MAX;
-                    if let Some(v) = index.checked_sub(*stamp) {
-                        keep = counts[stamp_idx][v as usize];
-                        keep = keep.saturating_add(1);
-                    }
-                    if stamp_idx < (stamps.len() - 1) {
-                        drop = counts[stamp_idx + 1][index as usize];
-                    }
-                    counts[stamp_idx][index as usize] = keep.min(drop);
+fn part_three(sparkballs: &[usize]) -> usize {
+    let stamps = [
+        1, 3, 5, 10, 15, 16, 20, 24, 25, 30, 37, 38, 49, 50, 74, 75, 100, 101,
+    ];
+    let values = get_beetle_count(sparkballs, &stamps);
+    sparkballs
+        .iter()
+        .map(|sparkball| {
+            (0..=50)
+                .map(|delta| {
+                    let left = sparkball / 2 + delta;
+                    let right = sparkball - left;
+                    values[left] + values[right]
                 })
-            });
-    }
-    sparkballs.iter().map(|s| counts[0][*s as usize]).collect()
+                .min()
+                .unwrap()
+        })
+        .sum()
+}
+
+fn get_beetle_count(sparkballs: &[usize], stamps: &[usize]) -> Vec<usize> {
+    let biggest = *sparkballs.iter().max().unwrap() + 1;
+    let mut counts = vec![biggest; biggest];
+    counts[0] = 0;
+    stamps.iter().for_each(|stamp| {
+        (*stamp..biggest).for_each(|idx| counts[idx] = counts[idx].min(counts[idx - *stamp] + 1))
+    });
+    counts
 }
 
 #[cfg(test)]
@@ -69,10 +59,7 @@ mod tests {
 
     #[test]
     fn test_simple_count() {
-        assert_eq!(
-            3,
-            get_beetle_count(&[19], &[1, 5, 6, 9]).iter().sum::<u64>()
-        );
+        assert_eq!(3, get_beetle_count(&[19], &[1, 5, 6, 9])[19]);
     }
 
     #[test]
@@ -85,5 +72,11 @@ mod tests {
     fn test_two() {
         let sparkballs = [33, 41, 55, 99];
         assert_eq!(10, part_two(&sparkballs));
+    }
+
+    #[test]
+    fn test_three() {
+        let sparkballs = [156488, 352486, 546212];
+        assert_eq!(10449, part_three(&sparkballs));
     }
 }
