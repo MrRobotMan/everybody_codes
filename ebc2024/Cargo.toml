@@ -40,3 +40,6 @@ name = "ebc2024q10"
 [[bin]]
 name = "ebc2024q11"
 
+[[bin]]
+name = "ebc2024q12"
+
