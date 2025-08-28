@@ -6,23 +6,24 @@ fn main() {
     let input = read_lines("ebc2024/inputs/quest12.1.txt");
     println!("Part 1: {}", part_one(parse_input(input)));
 
-    let _input = read_lines("ebc2024/inputs/quest12.2.txt");
-    println!("Part 2: {}", part_two());
+    let input = read_lines("ebc2024/inputs/quest12.2.txt");
+    println!("Part 2: {}", part_one(parse_input(input)));
 
     let _input = read_lines("ebc2024/inputs/quest12.3.txt");
     println!("Part 3: {}", part_three());
 }
 
-fn parse_input(lines: Vec<String>) -> Vec<(usize, usize)> {
+fn parse_input(lines: Vec<String>) -> Vec<(usize, usize, usize)> {
     let mut offset = 0;
     let mut res = Vec::new();
     for (row, line) in lines.iter().rev().enumerate().skip(1) {
         for (col, ch) in line.chars().enumerate() {
             match ch {
                 'A' => offset = col,
-                'T' => {
-                    res.push((col - offset, row));
-                }
+                'T' => res.push((col - offset, row, 1)),
+
+                'H' => res.push((col - offset, row, 2)),
+
                 _ => (),
             }
         }
@@ -34,24 +35,20 @@ fn parse_input(lines: Vec<String>) -> Vec<(usize, usize)> {
     res
 }
 
-fn score_target(target: &(usize, usize)) -> usize {
+fn score_target(target: &(usize, usize, usize)) -> usize {
     for height in 1..4 {
         let h = height as f64;
         let (x, y) = (target.0 as f64, target.1 as f64);
         let power = (x + y - h - 3.0) / 3.0 + 1.0;
         if power.fract() == 0.0 {
-            return height * power as usize;
+            return target.2 * height * power as usize;
         }
     }
     panic!("Not able to hit target {target:?}");
 }
 
-fn part_one(targets: Vec<(usize, usize)>) -> usize {
+fn part_one(targets: Vec<(usize, usize, usize)>) -> usize {
     targets.iter().map(score_target).sum()
-}
-
-fn part_two() -> String {
-    "Unsolved".into()
 }
 
 fn part_three() -> String {
@@ -64,7 +61,7 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        let expected = vec![(7, 2), (7, 1), (9, 1)];
+        let expected = vec![(7, 2, 1), (7, 1, 1), (9, 1, 1)];
         let lines = r#".............
 .C...........
 .B......T....
