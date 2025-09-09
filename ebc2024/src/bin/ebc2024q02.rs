@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use ebclib::read_lines;
+use puzlib::read_lines;
 
 fn main() {
     println!("Part 1: {}", part_one());

@@ -1,11 +1,11 @@
-use ebclib::read_line_chars;
+use puzlib::read_line;
 
 fn main() {
-    let input1 = read_line_chars("ebc2024/inputs/quest01.1.txt");
+    let input1 = read_line("ebc2024/inputs/quest01.1.txt");
     println!("Part 1: {}", part_one(&input1));
-    let input2 = read_line_chars("ebc2024/inputs/quest01.2.txt");
+    let input2 = read_line("ebc2024/inputs/quest01.2.txt");
     println!("Part 2: {}", part_two(&input2));
-    let input3 = read_line_chars("ebc2024/inputs/quest01.3.txt");
+    let input3 = read_line("ebc2024/inputs/quest01.3.txt");
     println!("Part 3: {}", part_three(&input3));
 }
 

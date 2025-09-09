@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ebclib::read_lines;
+use puzlib::read_lines;
 
 fn main() {
     let input = parse(&read_lines("ebc2024/inputs/quest06.1.txt"));

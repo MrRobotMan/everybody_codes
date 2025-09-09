@@ -1,7 +1,10 @@
 use num::Integer;
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::LazyLock,
+};
 
-use ebclib::{math::permutations_with_duplicates, read_lines, DIRS};
+use puzlib::{permutations_with_duplicates, read_lines, Dir, Vec2D};
 
 fn main() {
     let plans = read_lines("ebc2024/inputs/quest07.1.txt")
@@ -182,6 +185,8 @@ impl Device {
         self.step = (self.step + 1) % self.actions.len();
     }
 }
+
+static DIRS: LazyLock<[Vec2D<i64>; 4]> = LazyLock::new(Dir::<i64>::cardinals);
 
 fn parse_track<S: AsRef<str>>(track: S) -> Vec<char> {
     let lines = track

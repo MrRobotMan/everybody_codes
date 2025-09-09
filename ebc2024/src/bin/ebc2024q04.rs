@@ -1,4 +1,5 @@
-use ebclib::{read_lines, Median};
+use ebclib::Median;
+use puzlib::read_lines;
 
 fn main() {
     let input = read_lines("ebc2024/inputs/quest04.1.txt")

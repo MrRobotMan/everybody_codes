@@ -1,6 +1,9 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::LazyLock,
+};
 
-use ebclib::{read_grid, ALL_DIRS, DIRS};
+use puzlib::{read_grid, Dir, Vec2D};
 
 fn main() {
     let input = read_grid("ebc2024/inputs/quest03.1.txt");
@@ -34,6 +37,9 @@ fn part_three(grid: Vec<Vec<char>>) -> usize {
     }
     map.values().sum()
 }
+
+static DIRS: LazyLock<[Vec2D<i64>; 4]> = LazyLock::new(Dir::<i64>::cardinals);
+static ALL_DIRS: LazyLock<[Vec2D<i64>; 8]> = LazyLock::new(Dir::<i64>::compass);
 
 fn step(rows: i64, cols: i64, grid: &mut HashMap<(i64, i64), usize>, step: usize) -> bool {
     let mut to_update = HashSet::new();

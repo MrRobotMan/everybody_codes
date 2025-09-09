@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use ebclib::read_lines;
+use puzlib::read_lines;
 
 fn main() {
     let blocks = read_lines("ebc2024/inputs/quest08.1.txt")[0]

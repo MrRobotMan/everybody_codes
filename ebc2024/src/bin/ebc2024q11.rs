@@ -1,4 +1,4 @@
-use ebclib::read_lines;
+use puzlib::read_lines;
 use std::collections::HashMap;
 
 fn main() {

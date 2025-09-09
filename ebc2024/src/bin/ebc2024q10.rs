@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use ebclib::read_grid;
+use puzlib::read_grid;
 
 fn main() {
     let grid = read_grid("ebc2024/inputs/quest10.1.txt");

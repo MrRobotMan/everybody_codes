@@ -1,4 +1,4 @@
-use ebclib::read_numbers;
+use puzlib::read_numbers;
 
 fn main() {
     let input = read_numbers("ebc2024/inputs/quest09.1.txt");
