@@ -52,7 +52,7 @@ need_stdout = false
 command = [
     "cargo", "test", "--color", "always",
     "--package", "ebc2024",
-    "--bin", "ebc2024q12",
+    "--bin", "ebc2024q13",
     "--", "--color", "always", # see https://github.com/Canop/bacon/issues/124
 ]
 need_stdout = true
