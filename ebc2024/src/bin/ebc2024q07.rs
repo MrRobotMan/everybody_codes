@@ -4,7 +4,7 @@ use std::{
     sync::LazyLock,
 };
 
-use puzlib::{permutations_with_duplicates, read_lines, Dir, Vec2D};
+use puzlib::{Dir, Permutations, Vec2D, read_lines};
 
 fn main() {
     let plans = read_lines("ebc2024/inputs/quest07.1.txt")
@@ -97,11 +97,9 @@ fn part_three(mut action_plans: Vec<Device>, track: Vec<char>) -> usize {
         .min()
         .unwrap_or(2024);
     (0..laps_to_calculate).for_each(|_| action_plans[0].lap(&track));
-    let competetor = action_plans[0].score;
-    let plans = permutations_with_duplicates(&action_plans[0].actions);
-    assert_eq!(plans.len(), 9240); // 11! / (5!*3!*3!)
+    let competitor = action_plans[0].score;
+    let plans = action_plans[0].actions.permutations();
     plans
-        .iter()
         .map(|p| {
             let mut d = Device {
                 power: 10,
@@ -109,11 +107,7 @@ fn part_three(mut action_plans: Vec<Device>, track: Vec<char>) -> usize {
                 ..Default::default()
             };
             (0..laps_to_calculate).for_each(|_| d.lap(&track));
-            if d.score > competetor {
-                1
-            } else {
-                0
-            }
+            if d.score > competitor { 1 } else { 0 }
         })
         .sum()
 }
