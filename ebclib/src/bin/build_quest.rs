@@ -2,11 +2,11 @@ use chrono::{Datelike, FixedOffset, TimeZone, Utc};
 use std::{
     env,
     error::Error,
-    fs::{self, create_dir, File},
+    fs::{self, File, create_dir},
     io::{self, BufReader, Read},
     path::PathBuf,
 };
-use toml_edit::{value, ArrayOfTables, DocumentMut, Item, Table};
+use toml_edit::{ArrayOfTables, DocumentMut, Item, Table, value};
 
 fn main() {
     let Some((year, quest)) = get_args() else {
@@ -35,10 +35,10 @@ fn create_quest(year: i32, quest: u32) -> io::Result<String> {
     if bin.exists() {
         return Ok(format!("{year} quest {quest} already exists. Skipping."));
     }
-    if let Some(bin_dir) = bin.parent() {
-        if !bin_dir.exists() {
-            let _ = create_dir(bin_dir);
-        }
+    if let Some(bin_dir) = bin.parent()
+        && !bin_dir.exists()
+    {
+        let _ = create_dir(bin_dir);
     }
     let template = format!(
         r#"use ebclib::read_lines;

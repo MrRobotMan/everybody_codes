@@ -91,10 +91,10 @@ fn moving_target(catapult: usize, start: &(usize, usize)) -> Option<usize> {
     }
 
     // Hit in the horizontal section
-    if let Some(power) = y1.checked_sub(catapult) {
-        if power <= x1 && x1 <= 2 * power {
-            return Some(h * power);
-        };
+    if let Some(power) = y1.checked_sub(catapult)
+        && (power..=2 * power).contains(&x1)
+    {
+        return Some(h * power);
     }
 
     // Hit on the way back down.
