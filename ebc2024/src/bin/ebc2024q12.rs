@@ -43,21 +43,13 @@ fn parse_input(lines: Vec<String>) -> Vec<(usize, usize, usize)> {
 
 fn score_target(catapult: usize, target: &(usize, usize, usize)) -> Option<usize> {
     let (x, y, hp) = target;
-    if (x + y - catapult) % 3 == 0 {
-        let power = (x + y - catapult) / 3;
+    let a = x + y - catapult;
+    if a % 3 == 0 {
+        let power = a / 3;
         Some(hp * (catapult + 1) * power)
     } else {
         None
     }
-    // for height in 1..4 {
-    //     let h = height as f64;
-    //     let (x, y) = (target.0 as f64, target.1 as f64);
-    //     let power = (x + y - h - 2.0) / 3.0 + 1.0;
-    //     if power.fract() == 0.0 {
-    //         return target.2 * height * power as usize;
-    //     }
-    // }
-    // panic!("Not able to hit target {target:?}");
 }
 
 /*
@@ -80,8 +72,37 @@ B(P5) hits at H=3 takes 19
 C(P4) hits at H=2 takes 15
 */
 
-fn moving_target(start: &(usize, usize)) -> usize {
-    0
+fn moving_target(catapult: usize, start: &(usize, usize)) -> Option<usize> {
+    let &(mut x0, mut y0) = start;
+    // Wait 1 time unit if X is odd. Otherwise they won't hit in discrete time.
+    if x0 & 1 == 1 {
+        x0 -= 1;
+        y0 -= 1;
+    };
+
+    // Max height is at a distance of half of x.
+    let x1 = x0 / 2;
+    let y1 = y0 - x1;
+    let h = catapult + 1;
+
+    // In line with a catapult. Hit on the way up.
+    if x0 + catapult == y0 {
+        return Some(h * x1);
+    }
+
+    // Hit in the horizontal section
+    if let Some(power) = y1.checked_sub(catapult) {
+        if power <= x1 && x1 <= 2 * power {
+            return Some(h * power);
+        };
+    }
+
+    // Hit on the way back down.
+    if y1 <= x1 + catapult {
+        score_target(catapult, &(x1, y1, 1))
+    } else {
+        None
+    }
 }
 
 fn stationary(targets: Vec<(usize, usize, usize)>) -> usize {
@@ -92,7 +113,15 @@ fn stationary(targets: Vec<(usize, usize, usize)>) -> usize {
 }
 
 fn moving(positions: Vec<(usize, usize)>) -> usize {
-    positions.iter().map(moving_target).sum()
+    positions
+        .iter()
+        .map(|t| {
+            (0..3)
+                .filter_map(|c| moving_target(c, t))
+                .min()
+                .unwrap_or(0)
+        })
+        .sum()
 }
 
 #[cfg(test)]
@@ -132,8 +161,15 @@ mod tests {
 
     #[test]
     fn test_test_moving() {
-        let expected = 2;
-        let actual = moving_target(&(6, 5));
+        let expected = Some(2);
+        let actual = (0..3).filter_map(|c| moving_target(c, &(6, 5))).min();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_test_moving_total() {
+        let expected = 13;
+        let actual = moving(vec![(6, 5), (6, 7), (10, 5), (5, 5)]);
         assert_eq!(expected, actual);
     }
 }
