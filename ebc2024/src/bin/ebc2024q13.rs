@@ -11,37 +11,27 @@ fn main() {
     let chamber: Chamber = input.into();
     println!("Part 2: {}", chamber.traverse());
 
-    let _input = read_lines("ebc2024/inputs/quest13.3.txt");
-    println!("Part 3: Unsolved");
+    let input = read_lines("ebc2024/inputs/quest13.3.txt");
+    let chamber: Chamber = input.into();
+    println!("Part 3: {}", chamber.traverse());
 }
 
 #[derive(Debug, Default)]
 struct Chamber {
     chamber: HashMap<Vec2D<i64>, i64>,
-    start: Vec2D<i64>,
+    start: Vec<Vec2D<i64>>,
     end: Vec2D<i64>,
     size: (usize, usize),
 }
 
 impl Chamber {
     fn traverse(&self) -> usize {
-        let res = &dijkstra(&self.start, self).unwrap()[&self.end];
-        res.0
-    }
-
-    /*
-    fn show(&self) {
-        for row in 0..self.size.0 {
-            for col in 0..self.size.1 {
-                match self.chamber.get(&Vec2D(row as i64, col as i64)) {
-                    Some(n) => print!("{n}"),
-                    None => print!("#"),
-                }
-            }
-            println!();
+        let mut res = usize::MAX;
+        for start in self.start.iter() {
+            res = res.min(dijkstra(start, self).unwrap()[&self.end].0);
         }
+        res
     }
-    */
 }
 
 impl Graph for Chamber {
@@ -97,7 +87,7 @@ impl<S: AsRef<str>> From<Vec<S>> for Chamber {
                         chamber.chamber.insert(Vec2D(row, col), 0);
                     }
                     'S' => {
-                        chamber.start = Vec2D(row, col);
+                        chamber.start.push(Vec2D(row, col));
                         chamber.chamber.insert(Vec2D(row, col), 0);
                     }
                     x if x.is_ascii_digit() => {
@@ -116,6 +106,7 @@ impl<S: AsRef<str>> From<Vec<S>> for Chamber {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test_example1() {
         let expected = 28;
@@ -124,6 +115,25 @@ mod tests {
 S50505E
 #97434#
 #######"#
+            .lines()
+            .collect::<Vec<_>>()
+            .into();
+        let actual = chamber.traverse();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_example3() {
+        let expected = 14;
+        let chamber: Chamber = r#"SSSSSSSSSSS
+S674345621S
+S###6#4#18S
+S53#6#4532S
+S5450E0485S
+S##7154532S
+S2##314#18S
+S971595#34S
+SSSSSSSSSSS"#
             .lines()
             .collect::<Vec<_>>()
             .into();
