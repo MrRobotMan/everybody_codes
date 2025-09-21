@@ -28,7 +28,9 @@ impl Chamber {
     fn traverse(&self) -> usize {
         let mut res = usize::MAX;
         for start in self.start.iter() {
-            res = res.min(dijkstra(start, self).unwrap()[&self.end].0);
+            if let Some((m, _)) = dijkstra(start, self) {
+                res = res.min(m[&self.end]);
+            };
         }
         res
     }
