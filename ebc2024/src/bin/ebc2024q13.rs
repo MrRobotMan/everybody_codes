@@ -3,14 +3,14 @@ use std::collections::HashMap;
 use puzlib::{Dir, Graph, Vec2D, Weighted, dijkstra, read_lines};
 
 fn main() {
-    let input = read_lines("ebc2024/inputs/quest12.1.txt");
+    let input = read_lines("ebc2024/inputs/quest13.1.txt");
     let chamber: Chamber = input.into();
     println!("Part 1: {}", chamber.traverse());
 
-    let _input = read_lines("ebc2024/inputs/quest12.2.txt");
+    let _input = read_lines("ebc2024/inputs/quest13.2.txt");
     println!("Part 2: Unsolved");
 
-    let _input = read_lines("ebc2024/inputs/quest12.3.txt");
+    let _input = read_lines("ebc2024/inputs/quest13.3.txt");
     println!("Part 3: Unsolved");
 }
 
@@ -24,7 +24,20 @@ struct Chamber {
 
 impl Chamber {
     fn traverse(&self) -> usize {
-        dijkstra(&self.start, self).unwrap()[&self.end]
+        let res = &dijkstra(&self.start, self).unwrap()[&self.end];
+        res.0
+    }
+
+    fn show(&self) {
+        for row in 0..self.size.0 {
+            for col in 0..self.size.1 {
+                match self.chamber.get(&Vec2D(row as i64, col as i64)) {
+                    Some(n) => print!("{n}"),
+                    None => print!("#"),
+                }
+            }
+            println!();
+        }
     }
 }
 
@@ -84,12 +97,12 @@ impl<S: AsRef<str>> From<Vec<S>> for Chamber {
                         chamber.start = Vec2D(row, col);
                         chamber.chamber.insert(Vec2D(row, col), 0);
                     }
-                    '#' => (),
-                    x => {
+                    x if x.is_ascii_digit() => {
                         chamber
                             .chamber
                             .insert(Vec2D(row, col), (x as u8 - b'0') as i64);
                     }
+                    _ => (),
                 }
             }
         }
