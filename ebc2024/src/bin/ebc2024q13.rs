@@ -12,7 +12,8 @@ fn main() {
     println!("Part 2: {}", chamber.traverse());
 
     let input = read_lines("ebc2024/inputs/quest13.3.txt");
-    let chamber: Chamber = input.into();
+    let mut chamber: Chamber = input.into();
+    chamber.from_end = true;
     println!("Part 3: {}", chamber.traverse());
 }
 
@@ -22,15 +23,23 @@ struct Chamber {
     start: Vec<Vec2D<i64>>,
     end: Vec2D<i64>,
     size: (usize, usize),
+    from_end: bool,
 }
 
 impl Chamber {
     fn traverse(&self) -> usize {
         let mut res = usize::MAX;
-        for start in self.start.iter() {
-            if let Some((m, _)) = dijkstra(start, self) {
-                res = res.min(m[&self.end]);
+        if self.from_end {
+            if let Some((m, p)) = dijkstra(&self.end, self) {
+                let found = p[p.len() - 1];
+                res = m[&found]
             };
+        } else {
+            for start in self.start.iter() {
+                if let Some((m, _)) = dijkstra(start, self) {
+                    res = res.min(m[&self.end]);
+                };
+            }
         }
         res
     }
@@ -61,7 +70,11 @@ impl Graph for Chamber {
     }
 
     fn is_done(&self, node: &Self::Node) -> bool {
-        node == &self.end
+        if self.from_end {
+            self.start.contains(node)
+        } else {
+            node == &self.end
+        }
     }
 }
 impl Weighted for Chamber {
