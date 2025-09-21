@@ -44,7 +44,7 @@ fn parse_input(lines: Vec<String>) -> Vec<(usize, usize, usize)> {
 fn score_target(catapult: usize, target: &(usize, usize, usize)) -> Option<usize> {
     let (x, y, hp) = target;
     let a = x + y - catapult;
-    if a % 3 == 0 {
+    if a.is_multiple_of(3) {
         let power = a / 3;
         Some(hp * (catapult + 1) * power)
     } else {

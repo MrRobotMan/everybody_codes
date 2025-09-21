@@ -116,7 +116,7 @@ fn factors(mut number: usize) -> HashSet<usize> {
     let primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]; // Primes below sqsrt(2024)
     let mut found = HashSet::new();
     for prime in primes {
-        while number % prime == 0 {
+        while number.is_multiple_of(prime) {
             found.insert(prime);
             number /= prime;
         }
