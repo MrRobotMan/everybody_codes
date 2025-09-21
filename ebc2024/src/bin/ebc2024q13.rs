@@ -7,8 +7,9 @@ fn main() {
     let chamber: Chamber = input.into();
     println!("Part 1: {}", chamber.traverse());
 
-    let _input = read_lines("ebc2024/inputs/quest13.2.txt");
-    println!("Part 2: Unsolved");
+    let input = read_lines("ebc2024/inputs/quest13.2.txt");
+    let chamber: Chamber = input.into();
+    println!("Part 2: {}", chamber.traverse());
 
     let _input = read_lines("ebc2024/inputs/quest13.3.txt");
     println!("Part 3: Unsolved");
@@ -28,6 +29,7 @@ impl Chamber {
         res.0
     }
 
+    /*
     fn show(&self) {
         for row in 0..self.size.0 {
             for col in 0..self.size.1 {
@@ -39,6 +41,7 @@ impl Chamber {
             println!();
         }
     }
+    */
 }
 
 impl Graph for Chamber {
