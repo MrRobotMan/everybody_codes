@@ -41,7 +41,7 @@ fn create_quest(year: i32, quest: u32) -> io::Result<String> {
         let _ = create_dir(bin_dir);
     }
     let template = format!(
-        r#"use ebclib::read_lines;
+        r#"use puzlib::read_lines;
     
 fn main() {{
     let _input = read_lines("ebc{year}/inputs/quest{quest:02}.1.txt");
