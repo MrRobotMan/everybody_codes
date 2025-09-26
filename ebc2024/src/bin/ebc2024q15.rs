@@ -11,12 +11,9 @@ fn main() {
     let garden: Garden = input.into();
     println!("Part 2: {}", garden.find_path_to_herbs());
 
-    let _input = read_grid_to_map("ebc2024/inputs/quest15.3.txt");
-    println!("Part 3: {}", part_three());
-}
-
-fn part_three() -> String {
-    "Unsolved".into()
+    let input = read_grid_to_map("ebc2024/inputs/quest15.3.txt");
+    let garden: Garden = input.into();
+    println!("Part 3: {}", garden.find_path_to_herbs());
 }
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
