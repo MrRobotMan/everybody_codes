@@ -1,62 +1,84 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 
-use puzlib::{Dir, Graph, Vec2D, bfs, read_grid_to_map};
+use puzlib::{Dir, Vec2D, read_grid_to_map};
 
 fn main() {
     let input = read_grid_to_map("ebc2024/inputs/quest15.1.txt");
-    let mut garden: Garden = input.into();
+    let garden: Garden = input.into();
     println!("Part 1: {}", garden.find_path_to_herbs());
 
-    let _input = read_grid_to_map("ebc2024/inputs/quest15.2.txt");
-    println!("Part 2: {}", part_two());
+    let input = read_grid_to_map("ebc2024/inputs/quest15.2.txt");
+    let garden: Garden = input.into();
+    println!("Part 2: {}", garden.find_path_to_herbs());
 
     let _input = read_grid_to_map("ebc2024/inputs/quest15.3.txt");
     println!("Part 3: {}", part_three());
-}
-
-fn part_two() -> String {
-    "Unsolved".into()
 }
 
 fn part_three() -> String {
     "Unsolved".into()
 }
 
+#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
+struct State {
+    node: Vec2D<i64>,
+    collected: u32,
+    steps: usize,
+}
+
 #[derive(Debug, Default)]
 struct Garden {
-    map: HashMap<Vec2D<i64>, char>,
+    map: HashMap<Vec2D<i64>, u32>,
     start: Vec2D<i64>,
-    dims: (usize, usize),
-    to_find: HashSet<char>,
+    herb_mask: u32,
 }
 
 impl Garden {
-    fn find_path_to_herbs(&mut self) -> usize {
-        let mut dist = 0;
-        let mut cur = self.start;
-        while !self.to_find.is_empty() {
-            let mut path = bfs(&cur, self).unwrap();
-            cur = path.pop().unwrap();
-            self.to_find.remove(&self.map[&cur]);
-            dist += path.len();
+    fn find_path_to_herbs(&self) -> usize {
+        let mut visited = HashSet::new();
+        let mut most_herbs = 0;
+        let mut to_visit = VecDeque::new();
+        to_visit.push_back(State {
+            node: self.start,
+            collected: self.map[&self.start],
+            steps: 0,
+        });
+        while let Some(State {
+            node,
+            collected,
+            steps,
+        }) = to_visit.pop_front()
+        {
+            if node == self.start && collected == self.herb_mask {
+                return steps;
+            }
+            let coll = if self.map[&node] != self.map[&self.start] {
+                collected | self.map[&node]
+            } else {
+                collected
+            };
+            let herbs = u32::count_ones(coll);
+            // Prune paths that have collected 2 fewer herbs than the best path.
+            if herbs + 2 < most_herbs {
+                continue;
+            }
+            most_herbs = most_herbs.max(herbs);
+            for next in self.neighbors(&node) {
+                let mut next_state = State {
+                    node: next,
+                    collected: coll,
+                    steps: 0,
+                };
+                if visited.insert(next_state) {
+                    next_state.steps = steps + 1;
+                    to_visit.push_back(next_state);
+                }
+            }
         }
-        self.to_find.insert('S');
-        dist + bfs(&cur, self).unwrap().len() - 1
-    }
-}
-
-impl Graph for Garden {
-    type Node = Vec2D<i64>;
-
-    fn height(&self) -> usize {
-        self.dims.0
+        0
     }
 
-    fn width(&self) -> usize {
-        self.dims.1
-    }
-
-    fn moves(&self, node: &Self::Node) -> Vec<Self::Node> {
+    fn neighbors(&self, node: &Vec2D<i64>) -> Vec<Vec2D<i64>> {
         Dir::<i64>::cardinals()
             .iter()
             .filter_map(|d| {
@@ -69,33 +91,30 @@ impl Graph for Garden {
             })
             .collect()
     }
-
-    fn is_done(&self, node: &Self::Node) -> bool {
-        self.to_find.contains(&self.map[node])
-    }
 }
 
 impl From<Vec<((usize, usize), char)>> for Garden {
     fn from(value: Vec<((usize, usize), char)>) -> Self {
         let mut garden = Self::default();
         for ((x, y), char) in value {
-            garden.dims.0 = garden.dims.0.max(x);
-            garden.dims.0 = garden.dims.1.max(y);
             let x = x as i64;
             let y = y as i64;
             match char {
                 '.' => {
                     if x == 0 {
-                        garden.map.insert(Vec2D(x, y), 'S');
+                        let v = 1 << ('S' as u8 - b'A');
+                        garden.map.insert(Vec2D(x, y), v);
+                        garden.herb_mask |= v;
                         garden.start = Vec2D(x, y);
                     } else {
-                        garden.map.insert(Vec2D(x, y), '.');
+                        garden.map.insert(Vec2D(x, y), 0);
                     }
                 }
-                '#' => (),
+                '#' | '~' => (),
                 c => {
-                    garden.map.insert(Vec2D(x, y), c);
-                    garden.to_find.insert(c);
+                    let v = 1 << (c as u8 - b'A');
+                    garden.map.insert(Vec2D(x, y), v);
+                    garden.herb_mask |= v;
                 }
             }
         }
@@ -110,7 +129,7 @@ mod tests {
     #[test]
     fn test_one() {
         let expected = 26;
-        let mut garden: Garden = read_grid_to_map(
+        let garden: Garden = read_grid_to_map(
             "#####.#####
 #.........#
 #.######.##
@@ -120,7 +139,26 @@ mod tests {
 ###########",
         )
         .into();
-        println!("{garden:?}");
+        let actual = garden.find_path_to_herbs();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_two() {
+        let expected = 38;
+        let garden: Garden = read_grid_to_map(
+            "##########.##########
+#...................#
+#.###.##.###.##.#.#.#
+#..A#.#..~~~....#A#.#
+#.#...#.~~~~~...#.#.#
+#.#.#.#.~~~~~.#.#.#.#
+#...#.#.B~~~B.#.#...#
+#...#....BBB..#....##
+#C............#....C#
+#####################",
+        )
+        .into();
         let actual = garden.find_path_to_herbs();
         assert_eq!(expected, actual);
     }
