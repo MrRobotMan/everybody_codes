@@ -1,33 +1,44 @@
 use std::collections::HashMap;
 
-use puzlib::read_lines;
+use puzlib::{lcm, read_lines};
 
 fn main() {
     let input = read_lines("ebc2024/inputs/quest16.1.txt");
     let wheels = parse_input(input);
-    println!("Part 1: {}", part_one(wheels));
+    println!("Part 1: {}", part_one(wheels, 100));
 
-    let _input = read_lines("ebc2024/inputs/quest16.2.txt");
-    println!("Part 2: {}", part_two());
+    let input = read_lines("ebc2024/inputs/quest16.2.txt");
+    let wheels = parse_input(input);
+    println!("Part 2: {}", part_two(wheels, 202420242024));
 
     let _input = read_lines("ebc2024/inputs/quest16.3.txt");
     println!("Part 3: {}", part_three());
 }
 
-fn part_one(wheels: Vec<Wheel>) -> String {
+fn part_one(wheels: Vec<Wheel>, pulls: usize) -> String {
     let wh = wheels
         .iter()
-        .map(|wheel| {
-            wheel.sequence[(100 * wheel.steps) % wheel.sequence.len()]
-                .iter()
-                .collect::<String>()
-        })
+        .map(|wheel| wheel.position(pulls).iter().collect::<String>())
         .collect::<Vec<_>>();
     wh.join(" ")
 }
 
-fn part_two() -> String {
-    "Unsolved".into()
+fn part_two(wheels: Vec<Wheel>, pulls: usize) -> usize {
+    let cycle = wheels
+        .iter()
+        .fold(1, |acc, wheel| lcm(acc, wheel.sequence.len()));
+
+    let mut coins = 0;
+    for pull in 1..=cycle {
+        coins += score(wheels.iter().map(|wheel| wheel.position(pull)));
+    }
+    coins *= pulls / cycle;
+    let rem = pulls % cycle;
+    for pull in 0..rem {
+        coins += score(wheels.iter().map(|wheel| wheel.position(pull)));
+    }
+
+    coins
 }
 
 fn part_three() -> String {
@@ -37,11 +48,10 @@ fn part_three() -> String {
 fn score<T: Iterator<Item = [char; 3]>>(wheels: T) -> usize {
     let mut icons: HashMap<char, usize> = HashMap::new();
     for wheel in wheels {
-        println!("{wheel:?}");
-        for c in wheel {
-            let v = icons.entry(c).or_insert(0);
-            *v += 1;
-        }
+        let v = icons.entry(wheel[0]).or_insert(0);
+        *v += 1;
+        let v = icons.entry(wheel[2]).or_insert(0);
+        *v += 1;
     }
     icons.into_values().map(|v| v.saturating_sub(2)).sum()
 }
@@ -50,6 +60,12 @@ fn score<T: Iterator<Item = [char; 3]>>(wheels: T) -> usize {
 struct Wheel {
     steps: usize,
     sequence: Vec<[char; 3]>,
+}
+
+impl Wheel {
+    fn position(&self, pull: usize) -> [char; 3] {
+        self.sequence[(self.steps * pull) % self.sequence.len()]
+    }
 }
 
 fn parse_input(input: Vec<String>) -> Vec<Wheel> {
@@ -78,8 +94,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse() {
-        let expected = 2;
+    fn test_one() {
+        let expected = ">.- -.- ^,-";
         let wheels = parse_input(read_lines(
             "1,2,3
 
@@ -89,13 +105,29 @@ mod tests {
     -.^ ^_^
     >.>",
         ));
-        let actual = part_one(wheels);
+        let actual = part_one(wheels, 100);
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_two() {
+        let expected = 280014668134;
+        let wheels = parse_input(read_lines(
+            "1,2,3
+
+^_^ -.- ^,-
+>.- ^_^ >.<
+-_- -.- >.<
+    -.^ ^_^
+    >.>",
+        ));
+        let actual = part_two(wheels, 202420242024);
         assert_eq!(expected, actual);
     }
 
     #[test]
     fn test_score() {
-        let expected = 5;
+        let expected = 4;
         let actual = score([['^', '_', '^'], ['^', '_', '^'], ['^', '_', '^']].into_iter());
         assert_eq!(expected, actual);
     }
