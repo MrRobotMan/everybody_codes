@@ -11,14 +11,15 @@ fn main() {
     let wheels = parse_input(input);
     println!("Part 2: {}", part_two(wheels, 202420242024));
 
-    let _input = read_lines("ebc2024/inputs/quest16.3.txt");
-    println!("Part 3: {}", part_three());
+    let input = read_lines("ebc2024/inputs/quest16.3.txt");
+    let wheels = parse_input(input);
+    println!("Part 3: {}", part_three(wheels, 256));
 }
 
 fn part_one(wheels: Vec<Wheel>, pulls: usize) -> String {
     let wh = wheels
         .iter()
-        .map(|wheel| wheel.position(pulls).iter().collect::<String>())
+        .map(|wheel| wheel.position(pulls, 0, 0).iter().collect::<String>())
         .collect::<Vec<_>>();
     wh.join(" ")
 }
@@ -30,19 +31,46 @@ fn part_two(wheels: Vec<Wheel>, pulls: usize) -> usize {
 
     let mut coins = 0;
     for pull in 1..=cycle {
-        coins += score(wheels.iter().map(|wheel| wheel.position(pull)));
+        coins += score(wheels.iter().map(|wheel| wheel.position(pull, 0, 0)));
     }
     coins *= pulls / cycle;
     let rem = pulls % cycle;
     for pull in 0..rem {
-        coins += score(wheels.iter().map(|wheel| wheel.position(pull)));
+        coins += score(wheels.iter().map(|wheel| wheel.position(pull, 0, 0)));
     }
 
     coins
 }
 
-fn part_three() -> String {
-    "Unsolved".into()
+fn part_three(wheels: Vec<Wheel>, pulls: usize) -> String {
+    let mid = pulls + 1;
+    let mut cur_min = vec![usize::MAX; 2 * mid + 1];
+    let mut next_min = vec![usize::MAX; 2 * mid + 1];
+    let mut cur_max = vec![0; 2 * mid + 1];
+    let mut next_max = vec![0; 2 * mid + 1];
+    cur_min[mid] = 0;
+
+    for pull in 1..=pulls {
+        for value in (mid - pull)..=(mid + pull) {
+            let backward = mid.saturating_sub(value);
+            let foreward = value.saturating_sub(mid);
+            let score = score(
+                wheels
+                    .iter()
+                    .map(|wheel| wheel.position(pull, backward, foreward)),
+            );
+            next_min[value] = score + cur_min[value - 1..=value + 1].iter().min().unwrap();
+            next_max[value] = score + cur_max[value - 1..=value + 1].iter().max().unwrap();
+        }
+        (cur_min, next_min) = (next_min, cur_min);
+        (cur_max, next_max) = (next_max, cur_max);
+    }
+
+    format!(
+        "{} {}",
+        cur_max.iter().max().unwrap(),
+        cur_min.iter().min().unwrap()
+    )
 }
 
 fn score<T: Iterator<Item = [char; 3]>>(wheels: T) -> usize {
@@ -63,8 +91,9 @@ struct Wheel {
 }
 
 impl Wheel {
-    fn position(&self, pull: usize) -> [char; 3] {
-        self.sequence[(self.steps * pull) % self.sequence.len()]
+    fn position(&self, pull: usize, backward: usize, foreward: usize) -> [char; 3] {
+        let ct = self.sequence.len();
+        self.sequence[(self.steps * pull + foreward + (ct - backward % ct)) % ct]
     }
 }
 
@@ -122,6 +151,22 @@ mod tests {
     >.>",
         ));
         let actual = part_two(wheels, 202420242024);
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_three() {
+        let expected = "627 128";
+        let wheels = parse_input(read_lines(
+            "1,2,3
+
+^_^ -.- ^,-
+>.- ^_^ >.<
+-_- -.- ^.^
+    -.^ >.<
+    >.>",
+        ));
+        let actual = part_three(wheels, 256);
         assert_eq!(expected, actual);
     }
 
