@@ -99,7 +99,7 @@ impl From<Vec<((usize, usize), char)>> for Garden {
             match char {
                 '.' => {
                     if x == 0 {
-                        let v = 1 << ('S' as u8 - b'A');
+                        let v = 1 << (b'S' - b'A');
                         garden.map.insert(Vec2D(x, y), v);
                         garden.herb_mask |= v;
                         garden.start = Vec2D(x, y);
