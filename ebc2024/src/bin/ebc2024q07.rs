@@ -180,7 +180,14 @@ impl Device {
     }
 }
 
-static DIRS: LazyLock<[Vec2D<i64>; 4]> = LazyLock::new(Dir::<i64>::cardinals);
+static DIRS: LazyLock<[Vec2D<i64>; 4]> = LazyLock::new(|| {
+    Dir::<i64>::cardinals(&Vec2D(0, 0))
+        .iter()
+        .map(|d| d.unwrap())
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap()
+});
 
 fn parse_track<S: AsRef<str>>(track: S) -> Vec<char> {
     let lines = track

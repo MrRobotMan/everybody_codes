@@ -57,11 +57,13 @@ impl Graph for Chamber {
     }
 
     fn moves(&self, node: &Self::Node) -> Vec<Self::Node> {
-        Dir::<i64>::cardinals()
+        Dir::<i64>::cardinals(node)
             .iter()
             .filter_map(|n| {
-                if self.chamber.contains_key(&(node + n)) {
-                    Some(node + n)
+                if let Some(next) = n
+                    && self.chamber.contains_key(next)
+                {
+                    Some(*next)
                 } else {
                     None
                 }

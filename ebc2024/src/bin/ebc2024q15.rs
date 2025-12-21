@@ -76,12 +76,13 @@ impl Garden {
     }
 
     fn neighbors(&self, node: &Vec2D<i64>) -> Vec<Vec2D<i64>> {
-        Dir::<i64>::cardinals()
+        Dir::<i64>::cardinals(node)
             .iter()
-            .filter_map(|d| {
-                let next = node + d;
-                if self.map.contains_key(&next) {
-                    Some(next)
+            .filter_map(|next| {
+                if let Some(next) = next
+                    && self.map.contains_key(next)
+                {
+                    Some(*next)
                 } else {
                     None
                 }

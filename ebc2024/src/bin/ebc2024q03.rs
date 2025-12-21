@@ -3,7 +3,7 @@ use std::{
     sync::LazyLock,
 };
 
-use puzlib::{read_grid, Dir, Vec2D};
+use puzlib::{Dir, Vec2D, read_grid};
 
 fn main() {
     let input = read_grid("ebc2024/inputs/quest03.1.txt");
@@ -38,8 +38,22 @@ fn part_three(grid: Vec<Vec<char>>) -> usize {
     map.values().sum()
 }
 
-static DIRS: LazyLock<[Vec2D<i64>; 4]> = LazyLock::new(Dir::<i64>::cardinals);
-static ALL_DIRS: LazyLock<[Vec2D<i64>; 8]> = LazyLock::new(Dir::<i64>::compass);
+static DIRS: LazyLock<[Vec2D<i64>; 4]> = LazyLock::new(|| {
+    Dir::<i64>::cardinals(&Vec2D(0, 0))
+        .iter()
+        .map(|d| d.unwrap())
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap()
+});
+static ALL_DIRS: LazyLock<[Vec2D<i64>; 8]> = LazyLock::new(|| {
+    Dir::<i64>::compass(&Vec2D(0, 0))
+        .iter()
+        .map(|d| d.unwrap())
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap()
+});
 
 fn step(rows: i64, cols: i64, grid: &mut HashMap<(i64, i64), usize>, step: usize) -> bool {
     let mut to_update = HashSet::new();
