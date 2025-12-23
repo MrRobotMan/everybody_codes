@@ -12,14 +12,29 @@ fn main() {
         .collect();
     println!("Part 1: {}", part_one(input));
 
-    let _input = read_grid_to_map("ebc2024/inputs/quest17.2.txt");
-    println!("Part 2: {}", part_two());
+    let input = read_grid_to_map("ebc2024/inputs/quest17.2.txt")
+        .iter()
+        .filter_map(|(p, ch)| if *ch == '*' { Some(p.into()) } else { None })
+        .collect();
+    println!("Part 2: {}", part_two(input));
 
     let _input = read_grid_to_map("ebc2024/inputs/quest17.3.txt");
     println!("Part 3: {}", part_three());
 }
 
 fn part_one(stars: HashSet<Vec2D<usize>>) -> usize {
+    best_constellation(stars)
+}
+
+fn part_two(stars: HashSet<Vec2D<usize>>) -> usize {
+    best_constellation(stars)
+}
+
+fn part_three() -> String {
+    "Unsolved".into()
+}
+
+fn best_constellation(stars: HashSet<Vec2D<usize>>) -> usize {
     // Prim's Mimimum Spanning Tree
     let mut total_distance = 0;
     let mut visited = HashSet::new();
@@ -40,14 +55,6 @@ fn part_one(stars: HashSet<Vec2D<usize>>) -> usize {
     }
 
     stars.len() + total_distance
-}
-
-fn part_two() -> String {
-    "Unsolved".into()
-}
-
-fn part_three() -> String {
-    "Unsolved".into()
 }
 
 #[cfg(test)]
