@@ -8,36 +8,43 @@ fn main() {
     let message = read_message(&input[1..]);
     let rows = input[1..].len();
     let cols = input[1].len();
-    println!("Part 1: {}", part_one(instructions, message, rows, cols));
+    println!("Part 1: {}", decode(instructions, message, rows, cols, 1));
 
-    let _input = read_lines("ebc2024/inputs/quest19.2.txt");
-    println!("Part 2: {}", part_two());
+    let input = read_lines("ebc2024/inputs/quest19.2.txt");
+    let instructions = parse_instructions(&input[0]);
+    let message = read_message(&input[1..]);
+    let rows = input[1..].len();
+    let cols = input[1].len();
+    println!("Part 2: {}", decode(instructions, message, rows, cols, 100));
 
     let _input = read_lines("ebc2024/inputs/quest19.3.txt");
     println!("Part 3: {}", part_three());
 }
 
-fn part_one(
+fn decode(
     instruction: Vec<Rotation>,
     mut message: HashMap<Vec2D<usize>, char>,
     rows: usize,
     cols: usize,
+    rotations: usize,
 ) -> String {
-    let mut rotations = instruction.iter().cycle();
-    for row in 1..rows - 1 {
-        for col in 1..cols - 1 {
-            let rotation = rotations.next().unwrap();
-            let rotation_point = Vec2D(row, col);
-            let mut points = Dir::compass_unchecked(&rotation_point);
-            if matches!(rotation, Rotation::CounterClockwise) {
-                points = points
-                    .into_iter()
-                    .rev()
-                    .collect::<Vec<_>>()
-                    .try_into()
-                    .unwrap();
+    for _ in 0..rotations {
+        let mut instructions = instruction.iter().cycle();
+        for row in 1..rows - 1 {
+            for col in 1..cols - 1 {
+                let rotation = instructions.next().unwrap();
+                let rotation_point = Vec2D(row, col);
+                let mut points = Dir::compass_unchecked(&rotation_point);
+                if matches!(rotation, Rotation::CounterClockwise) {
+                    points = points
+                        .into_iter()
+                        .rev()
+                        .collect::<Vec<_>>()
+                        .try_into()
+                        .unwrap();
+                }
+                rotate(points, &mut message);
             }
-            rotate(points, &mut message);
         }
     }
     let start = message.iter().find(|(_, c)| **c == '>').unwrap().0;
@@ -46,10 +53,6 @@ fn part_one(
     (start.1 + 1..end.1)
         .map(|col| message[&Vec2D(start.0, col)])
         .collect()
-}
-
-fn part_two() -> String {
-    "Unsolved".into()
 }
 
 fn part_three() -> String {
@@ -166,7 +169,7 @@ mod tests {
     #[test]
     fn test_example_one() {
         let expected = "WIN";
-        let actual = part_one(
+        let actual = decode(
             vec![Rotation::CounterClockwise, Rotation::Clockwise],
             read_message(
                 &">-IN-
@@ -178,6 +181,7 @@ W---<"
             ),
             3,
             5,
+            1,
         );
         assert_eq!(expected, actual);
     }
