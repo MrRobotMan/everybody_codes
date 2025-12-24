@@ -9,8 +9,11 @@ fn main() {
         .collect();
     println!("Part 1: {}", flood_fill(input));
 
-    let _input = read_grid_to_map("ebc2024/inputs/quest18.2.txt");
-    println!("Part 2: {}", part_two());
+    let input = read_grid_to_map("ebc2024/inputs/quest18.2.txt")
+        .into_iter()
+        .map(|(n, c)| (n.into(), c))
+        .collect();
+    println!("Part 2: {}", flood_fill(input));
 
     let _input = read_grid_to_map("ebc2024/inputs/quest18.3.txt");
     println!("Part 3: {}", part_three());
@@ -23,8 +26,8 @@ fn flood_fill(input: HashMap<Vec2D<usize>, char>) -> usize {
         .filter_map(|(n, c)| if c == &'P' { Some(n) } else { None })
         .collect::<HashSet<_>>();
     let mut steps = 0;
-    let mut visited = HashSet::from([start]);
-    let mut queue = Vec::from([vec![start]]);
+    let mut visited: HashSet<Vec2D<usize>> = HashSet::from_iter(start.iter().copied());
+    let mut queue = Vec::from([start]);
     while let Some(nodes) = queue.pop() {
         if palms.is_empty() {
             break;
@@ -51,19 +54,16 @@ fn flood_fill(input: HashMap<Vec2D<usize>, char>) -> usize {
     steps
 }
 
-fn get_start(nodes: &HashMap<Vec2D<usize>, char>) -> Vec2D<usize> {
+fn get_start(nodes: &HashMap<Vec2D<usize>, char>) -> Vec<Vec2D<usize>> {
+    let mut starts = vec![];
     let max_col = nodes.keys().map(|n| n.1).max().unwrap();
     let max_row = nodes.keys().map(|n| n.0).max().unwrap();
     for (node, ch) in nodes {
         if (node.0 == 0 || node.0 == max_row || node.1 == 0 || node.1 == max_col) && ch == &'.' {
-            return *node;
+            starts.push(*node);
         }
     }
-    unreachable!()
-}
-
-fn part_two() -> String {
-    "Unsolved".into()
+    starts
 }
 
 fn part_three() -> String {
