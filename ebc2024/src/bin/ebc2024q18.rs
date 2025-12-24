@@ -7,51 +7,50 @@ fn main() {
         .into_iter()
         .map(|(n, c)| (n.into(), c))
         .collect();
-    println!("Part 1: {}", flood_fill(input));
+    println!("Part 1: {}", part_one_two(input));
 
     let input = read_grid_to_map("ebc2024/inputs/quest18.2.txt")
         .into_iter()
         .map(|(n, c)| (n.into(), c))
         .collect();
-    println!("Part 2: {}", flood_fill(input));
+    println!("Part 2: {}", part_one_two(input));
 
-    let _input = read_grid_to_map("ebc2024/inputs/quest18.3.txt");
-    println!("Part 3: {}", part_three());
+    let input = read_grid_to_map("ebc2024/inputs/quest18.3.txt")
+        .into_iter()
+        .map(|(n, c)| (n.into(), c))
+        .collect();
+    println!("Part 3: {}", part_three(input));
 }
 
-fn flood_fill(input: HashMap<Vec2D<usize>, char>) -> usize {
-    let start = get_start(&input);
-    let mut palms = input
+fn part_one_two(nodes: HashMap<Vec2D<usize>, char>) -> usize {
+    let starts = get_start(&nodes);
+    let palms = nodes
         .iter()
-        .filter_map(|(n, c)| if c == &'P' { Some(n) } else { None })
+        .filter_map(|(n, c)| if c == &'P' { Some(*n) } else { None })
         .collect::<HashSet<_>>();
-    let mut steps = 0;
-    let mut visited: HashSet<Vec2D<usize>> = HashSet::from_iter(start.iter().copied());
-    let mut queue = Vec::from([start]);
-    while let Some(nodes) = queue.pop() {
-        if palms.is_empty() {
-            break;
-        }
-        steps += 1;
-        let mut next = vec![];
-        for n in nodes {
-            visited.insert(n);
-            for neighbor in Dir::cardinals(&n) {
-                if let Some(neighbor) = neighbor
-                    && !visited.contains(&neighbor)
-                    && let Some(ch) = input.get(&neighbor)
-                    && ch != &'#'
-                {
-                    palms.remove(&neighbor);
-                    next.push(neighbor);
-                }
+    let res = flood_fill(starts, &nodes);
+    *res.iter()
+        .filter_map(|(n, c)| if palms.contains(n) { Some(c) } else { None })
+        .max()
+        .unwrap()
+}
+
+fn part_three(nodes: HashMap<Vec2D<usize>, char>) -> usize {
+    let palms = nodes
+        .iter()
+        .filter_map(|(n, c)| if c == &'P' { Some(*n) } else { None })
+        .collect::<HashSet<_>>();
+    let mut best = HashMap::new();
+    for node in palms.iter() {
+        for (node, time) in flood_fill(vec![*node], &nodes) {
+            if palms.contains(&node) {
+                continue;
             }
-        }
-        if !next.is_empty() {
-            queue.push(next);
+            let ent = best.entry(node).or_default();
+            *ent += time;
         }
     }
-    steps
+    *best.values().min().unwrap()
 }
 
 fn get_start(nodes: &HashMap<Vec2D<usize>, char>) -> Vec<Vec2D<usize>> {
@@ -66,8 +65,37 @@ fn get_start(nodes: &HashMap<Vec2D<usize>, char>) -> Vec<Vec2D<usize>> {
     starts
 }
 
-fn part_three() -> String {
-    "Unsolved".into()
+fn flood_fill(
+    starts: Vec<Vec2D<usize>>,
+    input: &HashMap<Vec2D<usize>, char>,
+) -> HashMap<Vec2D<usize>, usize> {
+    let mut steps = 0;
+    let mut visited = HashMap::new();
+    let mut nodes = starts;
+    loop {
+        let mut next = vec![];
+        for n in nodes {
+            if visited.contains_key(&n) {
+                continue;
+            }
+            visited.insert(n, steps);
+            for neighbor in Dir::cardinals(&n) {
+                if let Some(neighbor) = neighbor
+                    && !visited.contains_key(&neighbor)
+                    && let Some(ch) = input.get(&neighbor)
+                    && ch != &'#'
+                {
+                    next.push(neighbor);
+                }
+            }
+        }
+        steps += 1;
+        if next.is_empty() {
+            break;
+        }
+        nodes = next
+    }
+    visited
 }
 
 #[cfg(test)]
@@ -87,7 +115,24 @@ mod tests {
         .into_iter()
         .map(|(n, c)| (n.into(), c))
         .collect();
-        let actual = flood_fill(input);
+        let actual = part_one_two(input);
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_three() {
+        let expected = 12;
+        let input = read_grid_to_map(
+            "##########
+#.#......#
+#.P.####P#
+#.#...P#.#
+##########",
+        )
+        .into_iter()
+        .map(|(n, c)| (n.into(), c))
+        .collect();
+        let actual = part_three(input);
         assert_eq!(expected, actual);
     }
 }
