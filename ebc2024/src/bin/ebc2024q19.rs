@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 use puzlib::read_lines;
 
 fn main() {
@@ -38,8 +40,51 @@ fn part_two(instruction: Vec<Rotation>, mut message: Vec<Vec<char>>) -> String {
     read_message(&message)
 }
 
-fn part_three(_instruction: Vec<Rotation>, _message: Vec<Vec<char>>) -> String {
-    "Unsolved".into()
+fn part_three(instruction: Vec<Rotation>, message: Vec<Vec<char>>) -> String {
+    let mut step = (0..message.len())
+        .map(|row| {
+            (0..message[0].len())
+                .map(|col| (row, col))
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>();
+    rotate(&instruction, &mut step);
+    // Map final postion to where it started.
+    let translation = (0..message.len())
+        .flat_map(|row| {
+            (0..message[0].len()).map({
+                let cl = step.clone();
+                move |col| (cl[row][col], (row, col))
+            })
+        })
+        .collect::<HashMap<_, _>>();
+    let mut cycles = vec![];
+    let mut visted = HashSet::new();
+    for row in 0..message.len() {
+        for col in 0..message[0].len() {
+            if visted.contains(&(row, col)) {
+                continue;
+            }
+            let mut cycle = vec![];
+            let (mut r, mut c) = (row, col);
+            loop {
+                if !visted.insert((r, c)) {
+                    break;
+                };
+                cycle.push((r, c));
+                (r, c) = translation[&(r, c)];
+            }
+            cycles.push(cycle);
+        }
+    }
+    let mut new_message = message.clone();
+    for cycle in cycles {
+        for (idx, (row, col)) in cycle.iter().enumerate() {
+            let (r, c) = cycle[(idx + 1048576000) % cycle.len()];
+            new_message[r][c] = message[*row][*col];
+        }
+    }
+    read_message(&new_message)
 }
 
 const ROT_CW: [(i64, i64); 8] = [
