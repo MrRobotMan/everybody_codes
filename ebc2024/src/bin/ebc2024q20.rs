@@ -6,26 +6,19 @@ fn main() {
     let input = read_grid_to_map("ebc2024/inputs/quest20.1.txt");
     println!("Part 1: {}", part_one(input));
 
-    let _input = read_grid_to_map("ebc2024/inputs/quest20.2.txt");
-    println!("Part 2: {}", part_two());
+    let input = read_grid_to_map("ebc2024/inputs/quest20.2.txt");
+    println!("Part 2: {}", part_two(input));
 
     let _input = read_grid_to_map("ebc2024/inputs/quest20.3.txt");
     println!("Part 3: {}", part_three());
 }
 
 fn part_one(input: Vec<((usize, usize), char)>) -> i64 {
-    let mut start = Vec2D(0, 0);
-    let mut map: Map = HashMap::new();
-    for (node, ch) in input {
-        if ch == 'S' {
-            start = Vec2D(node.0 as i64, node.1 as i64);
-        }
-        map.insert(Vec2D(node.0 as i64, node.1 as i64), ch.into());
-    }
+    let map = Map::new(input);
     let mut step: HashMap<Glider, i64> = HashMap::from_iter(
         Dir::cardinals_unchecked(&Vec2D(0, 0))
             .iter()
-            .map(|heading| (Glider::new(start, *heading), 1000)),
+            .map(|heading| (Glider::new(map.start, *heading), 1_000)),
     );
 
     let mut time = 0;
@@ -43,25 +36,115 @@ fn part_one(input: Vec<((usize, usize), char)>) -> i64 {
     *step.values().max().unwrap()
 }
 
-fn part_two() -> String {
-    "Unsolved".into()
+fn part_two(input: Vec<((usize, usize), char)>) -> usize {
+    let map = Map::new(input);
+    let mut step: HashMap<Glider, i64> = HashMap::from_iter(
+        Dir::cardinals_unchecked(&Vec2D(0, 0))
+            .iter()
+            .map(|heading| (Glider::new(map.start, *heading), 10_000)),
+    );
+    let mut time = 0;
+    while !step.is_empty() {
+        let mut next_step = step.clone();
+        for (glider, altitude) in step {
+            if altitude >= 10_000 && glider.returned(&map) {
+                return time;
+            }
+            for (state, mut new_altitude) in glider.moves(altitude, &map) {
+                let cur_alt = next_step.entry(state).or_insert(new_altitude);
+                *cur_alt = *cur_alt.max(&mut new_altitude);
+            }
+        }
+        step = next_step;
+        time += 1;
+    }
+    usize::MAX
 }
 
 fn part_three() -> String {
     "Unsolved".into()
 }
 
-type Map = HashMap<Vec2D<i64>, Segment>;
+#[derive(Debug, Clone, Default)]
+struct Map {
+    grid: HashMap<Vec2D<i64>, Segment>,
+    start: Vec2D<i64>,
+    checkpoint_a: Option<Vec2D<i64>>,
+    checkpoint_b: Option<Vec2D<i64>>,
+    checkpoint_c: Option<Vec2D<i64>>,
+}
+
+impl Map {
+    fn new(input: Vec<((usize, usize), char)>) -> Self {
+        let mut map = Self::default();
+        for (node, ch) in input {
+            if ch == 'S' {
+                map.start = Vec2D(node.0 as i64, node.1 as i64);
+            }
+            if ch == 'A' {
+                map.checkpoint_a = Some(Vec2D(node.0 as i64, node.1 as i64));
+            }
+            if ch == 'B' {
+                map.checkpoint_b = Some(Vec2D(node.0 as i64, node.1 as i64));
+            }
+            if ch == 'C' {
+                map.checkpoint_c = Some(Vec2D(node.0 as i64, node.1 as i64));
+            }
+            map.grid
+                .insert(Vec2D(node.0 as i64, node.1 as i64), ch.into());
+        }
+        map
+    }
+
+    fn get(&self, pos: &Vec2D<i64>) -> Option<(Segment, i64)> {
+        if let Some(segment) = self.grid.get(pos)
+            && let Some(delta) = segment.delta_altitude()
+        {
+            Some((*segment, delta))
+        } else {
+            None
+        }
+    }
+
+    fn at_checkpoint(&self, checkpoint: Checkpoint, location: Vec2D<i64>) -> bool {
+        let check_loc = match checkpoint {
+            Checkpoint::A => self.checkpoint_a,
+            Checkpoint::B => self.checkpoint_b,
+            Checkpoint::C => self.checkpoint_c,
+            Checkpoint::Start => Some(self.start),
+        };
+        if let Some(check) = check_loc
+            && check == location
+        {
+            true
+        } else {
+            false
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Checkpoint {
+    A,
+    B,
+    C,
+    Start,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct Glider {
     pos: Vec2D<i64>,
     heading: Vec2D<i64>,
+    checkpoints: u8,
 }
 
 impl Glider {
     fn new(pos: Vec2D<i64>, heading: Vec2D<i64>) -> Self {
-        Self { pos, heading }
+        Self {
+            pos,
+            heading,
+            checkpoints: 0,
+        }
     }
 
     fn moves(&self, altitude: i64, map: &Map) -> Vec<(Self, i64)> {
@@ -73,13 +156,24 @@ impl Glider {
         };
         for dir in directions {
             let next_loc = self.pos + dir;
-            if let Some(segment) = map.get(&next_loc)
-                && let Some(delta) = segment.delta_altitude()
+            let mut checkpoints = self.checkpoints;
+            if (map.at_checkpoint(Checkpoint::A, next_loc) && checkpoints != 0)
+                || (map.at_checkpoint(Checkpoint::B, next_loc) && checkpoints != 1)
+                || (map.at_checkpoint(Checkpoint::C, next_loc) && checkpoints != 2)
+                || (map.at_checkpoint(Checkpoint::Start, next_loc) && checkpoints != 3)
             {
+                continue;
+            }
+            checkpoints += (map.at_checkpoint(Checkpoint::A, next_loc) as u8)
+                + (map.at_checkpoint(Checkpoint::B, next_loc) as u8)
+                + (map.at_checkpoint(Checkpoint::C, next_loc) as u8);
+
+            if let Some((_, delta)) = map.get(&next_loc) {
                 res.push((
                     Self {
                         pos: next_loc,
                         heading: dir,
+                        checkpoints,
                     },
                     delta + altitude,
                 ))
@@ -87,9 +181,13 @@ impl Glider {
         }
         res
     }
+
+    fn returned(&self, map: &Map) -> bool {
+        self.pos == map.start && self.checkpoints == 3
+    }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 enum Segment {
     None,
     Warm,
@@ -110,7 +208,7 @@ impl Segment {
 impl From<char> for Segment {
     fn from(value: char) -> Self {
         match value {
-            '.' | 'S' => Self::None,
+            '.' | 'S' | 'A' | 'B' | 'C' => Self::None,
             '+' => Self::Warm,
             '-' => Self::Cold,
             '#' => Self::Obstacle,
@@ -136,6 +234,23 @@ mod tests {
 #.........#",
         );
         let actual = part_one(input);
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_two() {
+        let expected = 24;
+        let input = read_grid_to_map(
+            "####S####
+#-.+++.-#
+#.+.+.+.#
+#-.+.+.-#
+#A+.-.+C#
+#.+-.-+.#
+#.+.B.+.#
+#########",
+        );
+        let actual = part_two(input);
         assert_eq!(expected, actual);
     }
 }
