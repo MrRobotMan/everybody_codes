@@ -1,82 +1,106 @@
-use std::collections::HashMap;
-
-use puzlib::{Dir, Vec2D, read_lines};
+use puzlib::read_lines;
 
 fn main() {
     let input = read_lines("ebc2024/inputs/quest19.1.txt");
     let instructions = parse_instructions(&input[0]);
-    let message = read_message(&input[1..]);
-    let rows = input[1..].len();
-    let cols = input[1].len();
-    println!("Part 1: {}", decode(instructions, message, rows, cols, 1));
+    let message = input[1..]
+        .iter()
+        .map(|line| line.chars().collect())
+        .collect();
+    println!("Part 1: {}", part_one(instructions, message));
 
     let input = read_lines("ebc2024/inputs/quest19.2.txt");
     let instructions = parse_instructions(&input[0]);
-    let message = read_message(&input[1..]);
-    let rows = input[1..].len();
-    let cols = input[1].len();
-    println!("Part 2: {}", decode(instructions, message, rows, cols, 100));
+    let message = input[1..]
+        .iter()
+        .map(|line| line.chars().collect())
+        .collect();
+    println!("Part 2: {}", part_two(instructions, message));
 
-    let _input = read_lines("ebc2024/inputs/quest19.3.txt");
-    println!("Part 3: {}", part_three());
+    let input = read_lines("ebc2024/inputs/quest19.3.txt");
+    let instructions = parse_instructions(&input[0]);
+    let message = input[1..]
+        .iter()
+        .map(|line| line.chars().collect())
+        .collect();
+    println!("Part 3: {}", part_three(instructions, message));
 }
 
-fn decode(
-    instruction: Vec<Rotation>,
-    mut message: HashMap<Vec2D<usize>, char>,
-    rows: usize,
-    cols: usize,
-    rotations: usize,
-) -> String {
-    for _ in 0..rotations {
-        let mut instructions = instruction.iter().cycle();
-        for row in 1..rows - 1 {
-            for col in 1..cols - 1 {
-                let rotation = instructions.next().unwrap();
-                let rotation_point = Vec2D(row, col);
-                let mut points = Dir::compass_unchecked(&rotation_point);
-                if matches!(rotation, Rotation::CounterClockwise) {
-                    points = points
-                        .into_iter()
-                        .rev()
-                        .collect::<Vec<_>>()
-                        .try_into()
-                        .unwrap();
-                }
-                rotate(points, &mut message);
-            }
-        }
+fn part_one(instruction: Vec<Rotation>, mut message: Vec<Vec<char>>) -> String {
+    rotate(&instruction, &mut message);
+    read_message(&message)
+}
+
+fn part_two(instruction: Vec<Rotation>, mut message: Vec<Vec<char>>) -> String {
+    for _ in 0..100 {
+        rotate(&instruction, &mut message);
     }
-    let start = message.iter().find(|(_, c)| **c == '>').unwrap().0;
-    let end = message.iter().find(|(_, c)| **c == '<').unwrap().0;
-    assert_eq!(start.0, end.0);
-    (start.1 + 1..end.1)
-        .map(|col| message[&Vec2D(start.0, col)])
-        .collect()
+    read_message(&message)
 }
 
-fn part_three() -> String {
+fn part_three(_instruction: Vec<Rotation>, _message: Vec<Vec<char>>) -> String {
     "Unsolved".into()
 }
 
-fn rotate(points: [Vec2D<usize>; 8], message: &mut HashMap<Vec2D<usize>, char>) {
-    let mut cur = message[&points[7]];
-    for p in points {
-        let next = message[&p];
-        message.entry(p).and_modify(|e| *e = cur);
-        cur = next;
+const ROT_CW: [(i64, i64); 8] = [
+    (-1, -1),
+    (0, -1),
+    (1, -1),
+    (1, 0),
+    (1, 1),
+    (0, 1),
+    (-1, 1),
+    (-1, 0),
+];
+
+const ROT_CCW: [(i64, i64); 8] = [
+    (-1, -1),
+    (-1, 0),
+    (-1, 1),
+    (0, 1),
+    (1, 1),
+    (1, 0),
+    (1, -1),
+    (0, -1),
+];
+
+fn rotate<T: Copy>(instruction: &[Rotation], message: &mut [Vec<T>]) {
+    let mut instructions = instruction.iter().cycle();
+    for row in 1..message.len() - 1 {
+        for col in 1..message[0].len() - 1 {
+            let (row, col) = (row as i64, col as i64);
+            let matrix = match instructions.next().unwrap() {
+                Rotation::Clockwise => ROT_CW,
+                Rotation::CounterClockwise => ROT_CCW,
+            };
+            let start = message[(row + matrix[0].0) as usize][(col + matrix[0].1) as usize];
+            for delta in 1..8 {
+                message[(row + matrix[delta - 1].0) as usize]
+                    [(col + matrix[delta - 1].1) as usize] =
+                    message[(row + matrix[delta].0) as usize][(col + matrix[delta].1) as usize];
+            }
+            message[(row + matrix[7].0) as usize][(col + matrix[7].1) as usize] = start;
+        }
     }
 }
 
-fn read_message(text: &[String]) -> HashMap<Vec2D<usize>, char> {
-    text.iter()
-        .enumerate()
-        .flat_map(|(row, line)| {
-            line.chars()
-                .enumerate()
-                .map(move |(col, ch)| (Vec2D(row, col), ch))
-        })
-        .collect()
+fn read_message(message: &[Vec<char>]) -> String {
+    let mut res = String::new();
+    let mut start = false;
+    for row in message {
+        for ch in row {
+            if ch == &'<' {
+                return res;
+            }
+            if start {
+                res.push(*ch);
+            }
+            if ch == &'>' {
+                start = true
+            }
+        }
+    }
+    res
 }
 
 fn parse_instructions(instruction: &str) -> Vec<Rotation> {
@@ -99,99 +123,20 @@ enum Rotation {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_rotate_cw() {
-        let expected = HashMap::from([
-            (Vec2D(0, 0), 'H'),
-            (Vec2D(0, 1), 'A'),
-            (Vec2D(0, 2), 'B'),
-            (Vec2D(1, 2), 'C'),
-            (Vec2D(2, 2), 'D'),
-            (Vec2D(2, 1), 'E'),
-            (Vec2D(2, 0), 'F'),
-            (Vec2D(1, 0), 'G'),
-        ]);
-        let mut actual = HashMap::from([
-            (Vec2D(0, 0), 'A'),
-            (Vec2D(0, 1), 'B'),
-            (Vec2D(0, 2), 'C'),
-            (Vec2D(1, 2), 'D'),
-            (Vec2D(2, 2), 'E'),
-            (Vec2D(2, 1), 'F'),
-            (Vec2D(2, 0), 'G'),
-            (Vec2D(1, 0), 'H'),
-        ]);
-        show(&expected, 3, 3);
-        println!();
-        show(&actual, 3, 3);
-        rotate(Dir::compass_unchecked(&Vec2D(1, 1)), &mut actual);
-        assert_eq!(expected, actual);
-    }
-
-    #[test]
-    fn test_rotate_ccw() {
-        let expected = HashMap::from([
-            (Vec2D(0, 0), 'B'),
-            (Vec2D(0, 1), 'C'),
-            (Vec2D(0, 2), 'D'),
-            (Vec2D(1, 2), 'E'),
-            (Vec2D(2, 2), 'F'),
-            (Vec2D(2, 1), 'G'),
-            (Vec2D(2, 0), 'H'),
-            (Vec2D(1, 0), 'A'),
-        ]);
-        let mut actual = HashMap::from([
-            (Vec2D(0, 0), 'A'),
-            (Vec2D(0, 1), 'B'),
-            (Vec2D(0, 2), 'C'),
-            (Vec2D(1, 2), 'D'),
-            (Vec2D(2, 2), 'E'),
-            (Vec2D(2, 1), 'F'),
-            (Vec2D(2, 0), 'G'),
-            (Vec2D(1, 0), 'H'),
-        ]);
-        rotate(
-            Dir::compass_unchecked(&Vec2D(1, 1))
-                .into_iter()
-                .rev()
-                .collect::<Vec<_>>()
-                .try_into()
-                .unwrap(),
-            &mut actual,
-        );
-        show(&expected, 3, 3);
-        println!();
-        show(&actual, 3, 3);
-        assert_eq!(expected, actual);
-    }
-
     #[test]
     fn test_example_one() {
         let expected = "WIN";
-        let actual = decode(
-            vec![Rotation::CounterClockwise, Rotation::Clockwise],
-            read_message(
-                &">-IN-
+        let mut message = ">-IN-
 -----
 W---<"
-                    .lines()
-                    .map(|l| l.into())
-                    .collect::<Vec<_>>(),
-            ),
-            3,
-            5,
-            1,
+            .lines()
+            .map(|l| l.chars().collect::<Vec<_>>())
+            .collect::<Vec<_>>();
+        rotate(
+            &[Rotation::CounterClockwise, Rotation::Clockwise],
+            &mut message,
         );
+        let actual = read_message(&message);
         assert_eq!(expected, actual);
-    }
-
-    fn show(stuff: &HashMap<Vec2D<usize>, char>, rows: usize, cols: usize) {
-        for row in 0..rows {
-            for col in 0..cols {
-                print!("{}", stuff.get(&Vec2D(row, col)).unwrap_or(&'x'));
-            }
-            println!();
-        }
     }
 }
