@@ -9,8 +9,8 @@ fn main() {
     let input = read_grid_to_map("ebc2024/inputs/quest20.2.txt");
     println!("Part 2: {}", part_two(input));
 
-    let _input = read_grid_to_map("ebc2024/inputs/quest20.3.txt");
-    println!("Part 3: {}", part_three());
+    let input = read_grid_to_map("ebc2024/inputs/quest20.3.txt");
+    println!("Part 3: {}", part_three(input, 384400));
 }
 
 fn part_one(input: Vec<((usize, usize), char)>) -> i64 {
@@ -61,8 +61,88 @@ fn part_two(input: Vec<((usize, usize), char)>) -> usize {
     usize::MAX
 }
 
-fn part_three() -> String {
-    "Unsolved".into()
+fn part_three(input: Vec<((usize, usize), char)>, altitude: i64) -> i64 {
+    let map = Map::new(input);
+    let mut furthest_reach: Option<i64> = None;
+    let mut best_col = None;
+    let mut min_drop = i64::MIN;
+    let Vec2D(rows, cols) = *map.grid.keys().max().unwrap() + Vec2D(1, 1);
+    let mut best_offset = cols as i64;
+    'outer: for col in 0..cols {
+        let mut alt = 0;
+        for row in 0..rows {
+            if let Some((_, delta)) = map.get(&Vec2D(row, col)) {
+                alt += delta;
+            } else {
+                continue 'outer;
+            }
+        }
+        let lateral_offset = col.abs_diff(map.start.1) as i64;
+        if alt > min_drop || (alt == min_drop && lateral_offset < best_offset) {
+            min_drop = alt;
+            best_offset = lateral_offset;
+            best_col = Some(col);
+        }
+    }
+
+    let Some(best_col) = best_col else {
+        panic!("Can't fly down a column")
+    };
+
+    let mut step = HashMap::<Glider, i64>::from([
+        (Glider::new(map.start, Vec2D(1, 0)), altitude),
+        (Glider::new(map.start, Vec2D(0, 1)), altitude),
+        (Glider::new(map.start, Vec2D(0, -1)), altitude),
+    ]);
+
+    // Move to the ideal column. Will be at the bottom of the known grid.
+    while !step.is_empty() {
+        let mut next_step = HashMap::new();
+        for (glider, alt) in step.iter() {
+            if alt == &0 {
+                furthest_reach = match furthest_reach {
+                    Some(reach) => Some(reach.max(glider.pos.0)),
+                    None => Some(glider.pos.0),
+                };
+            }
+            for (state, new_altitude) in glider.moves(*alt, &map) {
+                if new_altitude < 0 {
+                    continue;
+                }
+                if state.pos.1 <= glider.pos.1 && glider.pos.1 < best_col {
+                    continue;
+                }
+                if state.pos.1 >= glider.pos.1 && glider.pos.1 > best_col {
+                    continue;
+                }
+                if let Some(cur_alt) = step.get(&state) {
+                    next_step.insert(state, *cur_alt.max(&new_altitude));
+                } else {
+                    next_step.insert(state, new_altitude);
+                }
+            }
+        }
+        step = next_step;
+    }
+
+    // If we hit 0 on the first pass, return that.
+    if let Some(dist) = furthest_reach {
+        return dist;
+    }
+    let altitude = altitude - best_offset - 1;
+    let grids_traversed = altitude / min_drop.abs();
+    let mut distance = grids_traversed * rows;
+    let mut cur_altitude = altitude - (grids_traversed * min_drop.abs());
+    let mut row = 1;
+    distance += 1;
+    while cur_altitude > 0 {
+        if let Some((_, delta)) = map.get(&Vec2D(row, best_col)) {
+            cur_altitude += delta;
+            distance += 1;
+            row += 1;
+        }
+    }
+    distance
 }
 
 #[derive(Debug, Clone, Default)]
@@ -251,6 +331,23 @@ mod tests {
 #########",
         );
         let actual = part_two(input);
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_three() {
+        let expected = 768790;
+        let input = read_grid_to_map(
+            "#......S......#
+#-...+...-...+#
+#.............#
+#..+...-...+..#
+#.............#
+#-...-...+...-#
+#.............#
+#..#...+...+..#",
+        );
+        let actual = part_three(input, 384400);
         assert_eq!(expected, actual);
     }
 }
