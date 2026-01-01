@@ -44,13 +44,13 @@ fn create_quest(year: i32, quest: u32) -> io::Result<String> {
         r#"use puzlib::read_lines;
     
 fn main() {{
-    let _input = puzlib::FileReader::new("ebc{year}/inputs/quest{quest:02}.1.txt");
+    let _input = puzlib::FileReader::new("ebc{year}/inputs/everbody_codes_e{year}_q{quest:02}_p1.txt");
     println!("Part 1: {{}}", part_one());
 
-    let _input = puzlib::FileReader::new("ebc{year}/inputs/quest{quest:02}.2.txt");
+    let _input = puzlib::FileReader::new("ebc{year}/inputs/everbody_codes_e{year}_q{quest:02}_p2.txt");
     println!("Part 2: {{}}", part_two());
 
-    let _input = puzlib::FileReader::new("ebc{year}/inputs/quest{quest:02}.3.txt");
+    let _input = puzlib::FileReader::new("ebc{year}/inputs/everbody_codes_e{year}_q{quest:02}_p3.txt");
     println!("Part 3: {{}}", part_three());
     }}
 
