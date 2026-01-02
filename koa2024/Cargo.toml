@@ -1,0 +1,71 @@
+[package]
+name = "koa2024"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ebclib = {path = "../ebclib"}
+puzlib = {git = "https://github.com/mrrobotman/puzlib.git"}
+num = "0.4.3"
+
+[[bin]]
+name = "koa2024q01"
+
+[[bin]]
+name = "koa2024q02"
+
+[[bin]]
+name = "koa2024q03"
+
+[[bin]]
+name = "koa2024q04"
+
+[[bin]]
+name = "koa2024q05"
+
+[[bin]]
+name = "koa2024q06"
+
+[[bin]]
+name = "koa2024q07"
+
+[[bin]]
+name = "koa2024q08"
+
+[[bin]]
+name = "koa2024q09"
+
+[[bin]]
+name = "koa2024q10"
+
+[[bin]]
+name = "koa2024q11"
+
+[[bin]]
+name = "koa2024q12"
+
+
+[[bin]]
+name = "koa2024q13"
+
+[[bin]]
+name = "koa2024q14"
+
+[[bin]]
+name = "koa2024q15"
+
+[[bin]]
+name = "koa2024q16"
+
+[[bin]]
+name = "koa2024q17"
+
+[[bin]]
+name = "koa2024q18"
+
+[[bin]]
+name = "koa2024q19"
+
+[[bin]]
+name = "koa2024q20"
+
