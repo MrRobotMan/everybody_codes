@@ -3,15 +3,15 @@ use std::collections::HashMap;
 use puzlib::{lcm, read_lines};
 
 fn main() {
-    let input = read_lines("ebc2024/inputs/quest16.1.txt");
+    let input = read_lines("koa2024/inputs/quest16.1.txt");
     let wheels = parse_input(input);
     println!("Part 1: {}", part_one(wheels, 100));
 
-    let input = read_lines("ebc2024/inputs/quest16.2.txt");
+    let input = read_lines("koa2024/inputs/quest16.2.txt");
     let wheels = parse_input(input);
     println!("Part 2: {}", part_two(wheels, 202420242024));
 
-    let input = read_lines("ebc2024/inputs/quest16.3.txt");
+    let input = read_lines("koa2024/inputs/quest16.3.txt");
     let wheels = parse_input(input);
     println!("Part 3: {}", part_three(wheels, 256));
 }

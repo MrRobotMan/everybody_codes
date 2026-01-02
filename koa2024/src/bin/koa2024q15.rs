@@ -3,15 +3,15 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use puzlib::{Dir, Vec2D, read_grid_to_map};
 
 fn main() {
-    let input = read_grid_to_map("ebc2024/inputs/quest15.1.txt");
+    let input = read_grid_to_map("koa2024/inputs/quest15.1.txt");
     let garden: Garden = input.into();
     println!("Part 1: {}", garden.find_path_to_herbs());
 
-    let input = read_grid_to_map("ebc2024/inputs/quest15.2.txt");
+    let input = read_grid_to_map("koa2024/inputs/quest15.2.txt");
     let garden: Garden = input.into();
     println!("Part 2: {}", garden.find_path_to_herbs());
 
-    let input = read_grid_to_map("ebc2024/inputs/quest15.3.txt");
+    let input = read_grid_to_map("koa2024/inputs/quest15.3.txt");
     let garden: Garden = input.into();
     println!("Part 3: {}", garden.find_path_to_herbs());
 }

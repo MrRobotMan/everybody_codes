@@ -3,17 +3,17 @@ use std::collections::VecDeque;
 use puzlib::read_lines;
 
 fn main() {
-    let blocks = read_lines("ebc2024/inputs/quest08.1.txt")[0]
+    let blocks = read_lines("koa2024/inputs/quest08.1.txt")[0]
         .parse::<i64>()
         .unwrap();
     println!("Part 1: {}", part_one(blocks));
 
-    let priests = read_lines("ebc2024/inputs/quest08.2.txt")[0]
+    let priests = read_lines("koa2024/inputs/quest08.2.txt")[0]
         .parse::<i64>()
         .unwrap();
     println!("Part 2: {}", part_two(priests, 1111, 20240000));
 
-    let priests = read_lines("ebc2024/inputs/quest08.3.txt")[0]
+    let priests = read_lines("koa2024/inputs/quest08.3.txt")[0]
         .parse::<u64>()
         .unwrap();
     println!("Part 3: {}", part_three(priests, 10, 202400000));

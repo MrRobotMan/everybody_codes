@@ -6,13 +6,13 @@ use std::{
 use puzlib::{Dir, Vec2D, read_grid};
 
 fn main() {
-    let input = read_grid("ebc2024/inputs/quest03.1.txt");
+    let input = read_grid("koa2024/inputs/quest03.1.txt");
     println!("Part 1: {}", part_one(input));
 
-    let input = read_grid("ebc2024/inputs/quest03.2.txt");
+    let input = read_grid("koa2024/inputs/quest03.2.txt");
     println!("Part 2: {}", part_one(input));
 
-    let input = read_grid("ebc2024/inputs/quest03.3.txt");
+    let input = read_grid("koa2024/inputs/quest03.3.txt");
     println!("Part 3: {}", part_three(input));
 }
 

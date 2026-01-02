@@ -2,19 +2,19 @@ use ebclib::Median;
 use puzlib::read_lines;
 
 fn main() {
-    let input = read_lines("ebc2024/inputs/quest04.1.txt")
+    let input = read_lines("koa2024/inputs/quest04.1.txt")
         .iter()
         .map(|v| v.parse::<i64>().unwrap())
         .collect::<Vec<_>>();
     println!("Part 1: {}", part_one(&input));
 
-    let input = read_lines("ebc2024/inputs/quest04.2.txt")
+    let input = read_lines("koa2024/inputs/quest04.2.txt")
         .iter()
         .map(|v| v.parse::<i64>().unwrap())
         .collect::<Vec<_>>();
     println!("Part 2: {}", part_one(&input));
 
-    let mut input = read_lines("ebc2024/inputs/quest04.3.txt")
+    let mut input = read_lines("koa2024/inputs/quest04.3.txt")
         .iter()
         .map(|v| v.parse::<i64>().unwrap())
         .collect::<Vec<_>>();

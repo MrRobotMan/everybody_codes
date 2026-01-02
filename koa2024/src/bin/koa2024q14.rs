@@ -6,13 +6,13 @@ use std::{
 use puzlib::{Vec3D, get_path, read_lines};
 
 fn main() {
-    let input = read_lines("ebc2024/inputs/quest14.1.txt");
+    let input = read_lines("koa2024/inputs/quest14.1.txt");
     println!("Part 1: {}", part_one(parse_input(input).pop().unwrap()));
 
-    let input = read_lines("ebc2024/inputs/quest14.2.txt");
+    let input = read_lines("koa2024/inputs/quest14.2.txt");
     println!("Part 2: {}", part_two(parse_input(input)));
 
-    let input = read_lines("ebc2024/inputs/quest14.3.txt");
+    let input = read_lines("koa2024/inputs/quest14.3.txt");
     println!("Part 3: {}", part_three(parse_input(input)));
 }
 

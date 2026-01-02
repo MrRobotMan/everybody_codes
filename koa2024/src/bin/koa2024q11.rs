@@ -2,19 +2,19 @@ use puzlib::read_lines;
 use std::collections::HashMap;
 
 fn main() {
-    let input = read_lines("ebc2024/inputs/quest11.1.txt");
+    let input = read_lines("koa2024/inputs/quest11.1.txt");
     println!(
         "Part 1: {}",
         get_termites(HashMap::from([("A".into(), 1)]), 4, &conversions(input))
     );
 
-    let input = read_lines("ebc2024/inputs/quest11.2.txt");
+    let input = read_lines("koa2024/inputs/quest11.2.txt");
     println!(
         "Part 2: {}",
         get_termites(HashMap::from([("Z".into(), 1)]), 10, &conversions(input))
     );
 
-    let input = read_lines("ebc2024/inputs/quest11.3.txt");
+    let input = read_lines("koa2024/inputs/quest11.3.txt");
     println!("Part 3: {}", part_three(conversions(input)));
 }
 

@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use puzlib::{Dir, Vec2D, read_grid_to_map};
 
 fn main() {
-    let input = read_grid_to_map("ebc2024/inputs/quest20.1.txt");
+    let input = read_grid_to_map("koa2024/inputs/quest20.1.txt");
     println!("Part 1: {}", part_one(input));
 
-    let input = read_grid_to_map("ebc2024/inputs/quest20.2.txt");
+    let input = read_grid_to_map("koa2024/inputs/quest20.2.txt");
     println!("Part 2: {}", part_two(input));
 
-    let input = read_grid_to_map("ebc2024/inputs/quest20.3.txt");
+    let input = read_grid_to_map("koa2024/inputs/quest20.3.txt");
     println!("Part 3: {}", part_three(input, 384400));
 }
 

@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use puzlib::read_lines;
 
 fn main() {
-    let input = read_lines("ebc2024/inputs/quest19.1.txt");
+    let input = read_lines("koa2024/inputs/quest19.1.txt");
     let instructions = parse_instructions(&input[0]);
     let message = input[1..]
         .iter()
@@ -11,7 +11,7 @@ fn main() {
         .collect();
     println!("Part 1: {}", part_one(instructions, message));
 
-    let input = read_lines("ebc2024/inputs/quest19.2.txt");
+    let input = read_lines("koa2024/inputs/quest19.2.txt");
     let instructions = parse_instructions(&input[0]);
     let message = input[1..]
         .iter()
@@ -19,7 +19,7 @@ fn main() {
         .collect();
     println!("Part 2: {}", part_two(instructions, message));
 
-    let input = read_lines("ebc2024/inputs/quest19.3.txt");
+    let input = read_lines("koa2024/inputs/quest19.3.txt");
     let instructions = parse_instructions(&input[0]);
     let message = input[1..]
         .iter()

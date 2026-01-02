@@ -5,19 +5,19 @@ use puzlib::read_lines;
 fn main() {
     println!("Part 1: {}", part_one());
     println!("Part 2: {}", part_two());
-    let inscriptions = read_lines("ebc2024/inputs/quest02.3.txt");
+    let inscriptions = read_lines("koa2024/inputs/quest02.3.txt");
     println!("Part 3: {}", part_three(inscriptions));
 }
 
 fn part_one() -> usize {
-    let mut input = read_lines("ebc2024/inputs/quest02.1.txt");
+    let mut input = read_lines("koa2024/inputs/quest02.1.txt");
     let inscription = input.pop().unwrap();
     let runes = Runes::new(input.pop().unwrap().split_once(':').unwrap().1);
     runes.find_words(inscription)
 }
 
 fn part_two() -> usize {
-    let mut inscriptions = read_lines("ebc2024/inputs/quest02.2.txt");
+    let mut inscriptions = read_lines("koa2024/inputs/quest02.2.txt");
     let runes = Runes::new(inscriptions.remove(0).split_once(':').unwrap().1);
     inscriptions.iter().map(|i| runes.find_chars(i)).sum()
 }

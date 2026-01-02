@@ -2,13 +2,13 @@ use puzlib::read_lines;
 use std::collections::{HashMap, HashSet, VecDeque};
 
 fn main() {
-    let input = read_lines("ebc2024/inputs/quest05.1.txt");
+    let input = read_lines("koa2024/inputs/quest05.1.txt");
     println!("Part 1: {}", part_one(input));
 
-    let input = read_lines("ebc2024/inputs/quest05.2.txt");
+    let input = read_lines("koa2024/inputs/quest05.2.txt");
     println!("Part 2: {}", part_two(input));
 
-    let input = read_lines("ebc2024/inputs/quest05.3.txt");
+    let input = read_lines("koa2024/inputs/quest05.3.txt");
     println!("Part 3: {}", part_three(input));
 }
 

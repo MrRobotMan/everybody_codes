@@ -7,7 +7,7 @@ use std::{
 use puzlib::{Dir, Permutations, Vec2D, read_lines};
 
 fn main() {
-    let plans = read_lines("ebc2024/inputs/quest07.1.txt")
+    let plans = read_lines("koa2024/inputs/quest07.1.txt")
         .iter()
         .map(|l| {
             let (name, actions) = l.split_once(':').unwrap();
@@ -16,7 +16,7 @@ fn main() {
         .collect::<Vec<Device>>();
     println!("Part 1: {}", part_one(plans));
 
-    let plans = read_lines("ebc2024/inputs/quest07.2.txt")
+    let plans = read_lines("koa2024/inputs/quest07.2.txt")
         .iter()
         .map(|l| {
             let (name, actions) = l.split_once(':').unwrap();
@@ -36,7 +36,7 @@ fn main() {
     );
     println!("Part 2: {}", part_two(plans, track));
 
-    let plans = read_lines("ebc2024/inputs/quest07.3.txt")
+    let plans = read_lines("koa2024/inputs/quest07.3.txt")
         .iter()
         .map(|l| {
             let (name, actions) = l.split_once(':').unwrap();

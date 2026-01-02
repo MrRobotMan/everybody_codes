@@ -3,13 +3,13 @@ use std::cmp::Ordering;
 use puzlib::read_lines;
 
 fn main() {
-    let input = read_lines("ebc2024/inputs/quest12.1.txt");
+    let input = read_lines("koa2024/inputs/quest12.1.txt");
     println!("Part 1: {}", stationary(parse_input(input)));
 
-    let input = read_lines("ebc2024/inputs/quest12.2.txt");
+    let input = read_lines("koa2024/inputs/quest12.2.txt");
     println!("Part 2: {}", stationary(parse_input(input)));
 
-    let input = read_lines("ebc2024/inputs/quest12.3.txt")
+    let input = read_lines("koa2024/inputs/quest12.3.txt")
         .iter()
         .filter_map(|line| {
             line.split_once(' ')

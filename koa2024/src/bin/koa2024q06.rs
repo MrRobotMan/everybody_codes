@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use puzlib::read_lines;
 
 fn main() {
-    let input = parse(&read_lines("ebc2024/inputs/quest06.1.txt"));
+    let input = parse(&read_lines("koa2024/inputs/quest06.1.txt"));
     println!("Part 1: {}", part_one(&input));
 
-    let input = parse(&read_lines("ebc2024/inputs/quest06.2.txt"));
+    let input = parse(&read_lines("koa2024/inputs/quest06.2.txt"));
     println!("Part 2: {}", part_two(&input));
 
-    let input = parse(&read_lines("ebc2024/inputs/quest06.3.txt"));
+    let input = parse(&read_lines("koa2024/inputs/quest06.3.txt"));
     println!("Part 3: {}", part_three(&input));
 }
 

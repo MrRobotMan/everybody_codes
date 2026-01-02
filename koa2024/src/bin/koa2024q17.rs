@@ -6,13 +6,13 @@ use std::{
 use puzlib::{Vec2D, read_grid_to_map};
 
 fn main() {
-    let input = lines_to_stars(read_grid_to_map("ebc2024/inputs/quest17.1.txt"));
+    let input = lines_to_stars(read_grid_to_map("koa2024/inputs/quest17.1.txt"));
     println!("Part 1: {}", part_one(input));
 
-    let input = lines_to_stars(read_grid_to_map("ebc2024/inputs/quest17.2.txt"));
+    let input = lines_to_stars(read_grid_to_map("koa2024/inputs/quest17.2.txt"));
     println!("Part 2: {}", part_two(input));
 
-    let input = lines_to_stars(read_grid_to_map("ebc2024/inputs/quest17.3.txt"));
+    let input = lines_to_stars(read_grid_to_map("koa2024/inputs/quest17.3.txt"));
     println!("Part 3: {}", part_three(input));
 }
 

@@ -3,15 +3,15 @@ use std::collections::HashMap;
 use puzlib::{Dir, Graph, Vec2D, Weighted, dijkstra, read_lines};
 
 fn main() {
-    let input = read_lines("ebc2024/inputs/quest13.1.txt");
+    let input = read_lines("koa2024/inputs/quest13.1.txt");
     let chamber: Chamber = input.into();
     println!("Part 1: {}", chamber.traverse());
 
-    let input = read_lines("ebc2024/inputs/quest13.2.txt");
+    let input = read_lines("koa2024/inputs/quest13.2.txt");
     let chamber: Chamber = input.into();
     println!("Part 2: {}", chamber.traverse());
 
-    let input = read_lines("ebc2024/inputs/quest13.3.txt");
+    let input = read_lines("koa2024/inputs/quest13.3.txt");
     let mut chamber: Chamber = input.into();
     chamber.from_end = true;
     println!("Part 3: {}", chamber.traverse());

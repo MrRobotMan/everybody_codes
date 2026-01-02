@@ -3,19 +3,19 @@ use std::collections::{HashMap, HashSet};
 use puzlib::{Dir, Vec2D, read_grid_to_map};
 
 fn main() {
-    let input: HashMap<Vec2D<usize>, char> = read_grid_to_map("ebc2024/inputs/quest18.1.txt")
+    let input: HashMap<Vec2D<usize>, char> = read_grid_to_map("koa2024/inputs/quest18.1.txt")
         .into_iter()
         .map(|(n, c)| (n.into(), c))
         .collect();
     println!("Part 1: {}", part_one_two(input));
 
-    let input = read_grid_to_map("ebc2024/inputs/quest18.2.txt")
+    let input = read_grid_to_map("koa2024/inputs/quest18.2.txt")
         .into_iter()
         .map(|(n, c)| (n.into(), c))
         .collect();
     println!("Part 2: {}", part_one_two(input));
 
-    let input = read_grid_to_map("ebc2024/inputs/quest18.3.txt")
+    let input = read_grid_to_map("koa2024/inputs/quest18.3.txt")
         .into_iter()
         .map(|(n, c)| (n.into(), c))
         .collect();

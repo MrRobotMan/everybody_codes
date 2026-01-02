@@ -1,13 +1,13 @@
 use puzlib::read_numbers;
 
 fn main() {
-    let input = read_numbers("ebc2024/inputs/quest09.1.txt");
+    let input = read_numbers("koa2024/inputs/quest09.1.txt");
     println!("Part 1: {}", part_one(&input));
 
-    let input = read_numbers("ebc2024/inputs/quest09.2.txt");
+    let input = read_numbers("koa2024/inputs/quest09.2.txt");
     println!("Part 2: {}", part_two(&input));
 
-    let input = read_numbers("ebc2024/inputs/quest09.3.txt");
+    let input = read_numbers("koa2024/inputs/quest09.3.txt");
     println!("Part 3: {}", part_three(&input));
 }
 

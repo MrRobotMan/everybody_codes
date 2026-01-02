@@ -3,13 +3,13 @@ use std::collections::HashSet;
 use puzlib::read_grid;
 
 fn main() {
-    let grid = read_grid("ebc2024/inputs/quest10.1.txt");
+    let grid = read_grid("koa2024/inputs/quest10.1.txt");
     println!("Part 1: {}", part_one(grid));
 
-    let grids = read_grid("ebc2024/inputs/quest10.2.txt");
+    let grids = read_grid("koa2024/inputs/quest10.2.txt");
     println!("Part 2: {}", part_two(grids));
 
-    let grids = read_grid("ebc2024/inputs/quest10.3.txt");
+    let grids = read_grid("koa2024/inputs/quest10.3.txt");
     println!("Part 3: {}", part_three(grids));
 }
 
